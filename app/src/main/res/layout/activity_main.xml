@@ -9,6 +9,60 @@
     tools:context=".MainActivity">
 
 
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="173dp"
+        android:layout_height="486dp"
+        android:layout_marginStart="346dp"
+        android:layout_marginTop="313dp"
+        android:tint="#EBE6B8"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/circulo" />
+
+    <ImageView
+        android:id="@+id/imageView5"
+        android:layout_width="243dp"
+        android:layout_height="533dp"
+        android:layout_marginTop="470dp"
+        android:layout_marginEnd="327dp"
+        android:tint="#B8C7EB"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/circulo" />
+
+    <ImageView
+        android:id="@+id/imageView4"
+        android:layout_width="115dp"
+        android:layout_height="405dp"
+        android:layout_marginTop="57dp"
+        android:layout_marginEnd="348dp"
+        android:layout_marginBottom="287dp"
+        android:tint="#BAEBB8"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/circulo" />
+
+    <ImageView
+        android:id="@+id/imageView6"
+        android:layout_width="115dp"
+        android:layout_height="405dp"
+        android:layout_marginStart="326dp"
+        android:layout_marginTop="269dp"
+        android:layout_marginBottom="75dp"
+        android:tint="#EBB8C1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/circulo" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/Lyt_datos"
         android:layout_width="317dp"
@@ -48,7 +102,7 @@
             app:layout_constraintVertical_bias="0.296" />
 
         <Button
-            android:id="@+id/btn"
+            android:id="@+id/btnAdmin"
             android:layout_width="150dp"
             android:layout_height="50dp"
             android:layout_marginStart="5dp"
@@ -64,7 +118,7 @@
             app:layout_constraintVertical_bias="0.895" />
 
         <Button
-            android:id="@+id/btn2"
+            android:id="@+id/btnMaestros"
             android:layout_width="150dp"
             android:layout_height="50dp"
             android:layout_marginStart="5dp"
@@ -118,6 +172,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.43" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageView
