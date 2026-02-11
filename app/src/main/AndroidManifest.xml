@@ -12,6 +12,24 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Pasitos">
         <activity
+            android:name=".SalidasActivity"
+            android:exported="false" />
+        <activity
+            android:name=".EntradasActivity"
+            android:exported="false" />
+        <activity
+            android:name=".HistorialActivity"
+            android:exported="false" />
+        <activity
+            android:name=".PagosActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CitasActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CRUDSActivity"
+            android:exported="false" />
+        <activity
             android:name=".MaestroActivity"
             android:exported="false" />
         <activity
