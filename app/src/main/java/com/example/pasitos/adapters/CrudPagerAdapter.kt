@@ -15,8 +15,8 @@ class CrudPagerAdapter(activity: AppCompatActivity)
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> NinoFragment()
-            1 -> PapaFragment()
+            1 -> NinoFragment()
+            0 -> PapaFragment()
             2 -> MaestroFragment()
             else -> NinoFragment()
         }
