@@ -34,7 +34,6 @@ class EditarNinoDialog(
 
         spinnerGuarderia.adapter = adapter
 
-        // valores actuales
         editNombre.setText(nombreActual)
         editPadre.setText(padreActual)
 

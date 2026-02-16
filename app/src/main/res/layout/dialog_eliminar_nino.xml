@@ -18,21 +18,26 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="end">
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="20dp">
 
         <Button
             android:id="@+id/btnCancelar"
-            android:layout_width="wrap_content"
-            android:backgroundTint="#599B3D"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Cancelar"/>
+            android:layout_weight="1"
+            android:text="Cancelar"
+            android:backgroundTint="#599B3D"
+            android:layout_marginEnd="8dp"/>
 
         <Button
             android:id="@+id/btnConfirmarEliminar"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:backgroundTint="#599B3D"
+            android:layout_weight="1"
             android:text="Eliminar"
+            android:backgroundTint="#599B3D"
             android:layout_marginStart="8dp"/>
 
     </LinearLayout>
