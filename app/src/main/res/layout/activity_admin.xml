@@ -43,7 +43,7 @@
                 android:id="@+id/titulo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Bienvenida Maestra"
+                android:text="Bienvenida Admin"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@id/casa"
