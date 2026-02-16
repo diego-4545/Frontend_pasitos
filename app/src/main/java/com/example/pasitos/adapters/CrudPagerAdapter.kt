@@ -4,7 +4,7 @@ package com.example.pasitos
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.example.pasitos.Fragments.MaestroFragment
+import com.example.pasitos.Fragments.MaestrosFragment
 import com.example.pasitos.Fragments.NinoFragment
 import com.example.pasitos.Fragments.PadreFragment
 
@@ -18,7 +18,7 @@ class CrudPagerAdapter(activity: AppCompatActivity)
         return when (position) {
             1 -> NinoFragment()
             0 -> PadreFragment()
-            2 -> MaestroFragment()
+            2 -> MaestrosFragment()
             else -> NinoFragment()
         }
     }
