@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.pasitos.NinoAdapter
 import com.example.pasitos.R
-import com.example.pasitos.schemas.Nino   // ← IMPORT CORRECTO
+import com.example.pasitos.schemas.Nino
 import com.example.pasitos.dialogs.AgregarNinoDialog
 import com.google.android.material.button.MaterialButton
 

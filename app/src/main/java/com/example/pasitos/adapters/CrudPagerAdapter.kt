@@ -6,7 +6,8 @@ import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.pasitos.Fragments.MaestroFragment
 import com.example.pasitos.Fragments.NinoFragment
-import com.example.pasitos.Fragments.PapaFragment
+import com.example.pasitos.Fragments.PadreFragment
+
 
 class CrudPagerAdapter(activity: AppCompatActivity)
     : FragmentStateAdapter(activity) {
@@ -16,7 +17,7 @@ class CrudPagerAdapter(activity: AppCompatActivity)
     override fun createFragment(position: Int): Fragment {
         return when (position) {
             1 -> NinoFragment()
-            0 -> PapaFragment()
+            0 -> PadreFragment()
             2 -> MaestroFragment()
             else -> NinoFragment()
         }
