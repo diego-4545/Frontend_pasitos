@@ -1,11 +1,11 @@
 package com.example.pasitos.schemas
 
 data class Maestro(
-
-    val usuario: String,
-    val contrasena: String,
+    val id: Int? = null,
     val nombre: String,
     val telefono: String,
-    val guarderia: String
+    val username: String,
+    val password: String,
+    val sucursal: Int
 
 )

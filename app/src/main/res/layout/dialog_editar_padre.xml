@@ -17,6 +17,9 @@
 
     <EditText
         android:id="@+id/editNombrePadre"
+        android:singleLine="true"
+        android:imeOptions="actionDone"
+
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Nombre"/>
@@ -24,8 +27,12 @@
     <EditText
         android:id="@+id/editTelefonoPadre"
         android:layout_width="match_parent"
+        android:maxLength="10"
         android:layout_height="wrap_content"
         android:hint="Teléfono"
+        android:singleLine="true"
+        android:imeOptions="actionDone"
+
         android:layout_marginTop="8dp"/>
 
     <Button

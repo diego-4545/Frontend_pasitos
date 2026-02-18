@@ -28,7 +28,6 @@ class InfoPadreDialog(
         txtNombre.text = nombre
         txtTelefono.text = telefono
 
-        // convertir lista a texto
         txtHijos.text = hijos.joinToString("\n")
 
         btnCerrar.setOnClickListener {

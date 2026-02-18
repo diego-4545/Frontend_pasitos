@@ -49,7 +49,7 @@ class CRUDSActivity : AppCompatActivity() {
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             when (position) {
-                0 -> tab.text = "Papás"
+                0 -> tab.text = "Padres"
                 1 -> tab.text = "Niños"
                 2 -> tab.text = "Maestros"
             }

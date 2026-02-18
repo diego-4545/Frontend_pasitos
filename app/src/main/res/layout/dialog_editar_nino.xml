@@ -17,22 +17,25 @@
 
     <EditText
         android:id="@+id/editNombre"
+        android:singleLine="true"
+        android:imeOptions="actionDone"
+
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Nombre"/>
 
-    <EditText
-        android:id="@+id/editPadre"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Padre"
-        android:layout_marginTop="8dp"/>
 
     <Spinner
         android:id="@+id/spinnerGuarderia"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"/>
+
+    <Spinner
+        android:id="@+id/spPadre"
+        android:layout_marginTop="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
     <Button
         android:id="@+id/btnGuardarCambios"

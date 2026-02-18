@@ -8,38 +8,31 @@ import android.widget.TextView
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.example.pasitos.R
-import com.example.pasitos.schemas.Padre
 import com.example.pasitos.dialogs.EditarPadreDialog
 import com.example.pasitos.dialogs.InfoPadreDialog
-import com.example.pasitos.dialogs.EliminarPadreDialog
+import com.example.pasitos.schemas.Padre
+import com.example.pasitos.schemas.Nino
+import com.example.pasitos.network.RetrofitClient
 
 
 class PadreAdapter(
-    private val lista: MutableList<Padre>
+    private val lista: MutableList<Padre>,
+    private val onEliminarClick: (Padre) -> Unit,
+    private val onEditarClick: (Padre, String, String) -> Unit
 ) : RecyclerView.Adapter<PadreAdapter.ViewHolder>() {
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
-        val txtNombre: TextView =
-            itemView.findViewById(R.id.txtNombrePadre)
+        val txtNombre: TextView = view.findViewById(R.id.txtNombrePadre)
+        val txtTelefono: TextView = view.findViewById(R.id.txtTelefonoPadre)
 
-        val txtTelefono: TextView =
-            itemView.findViewById(R.id.txtTelefonoPadre)
+        val btnEliminar: Button = view.findViewById(R.id.btnEliminarPadre)
+        val btnEditar: Button = view.findViewById(R.id.btnEditarPadre)
+        val btnInfo: Button = view.findViewById(R.id.btnInfoPadre)
 
-        val btnInfo: Button =
-            itemView.findViewById(R.id.btnInfoPadre)
-
-        val btnEditar: Button =
-            itemView.findViewById(R.id.btnEditarPadre)
-
-        val btnEliminar: Button =
-            itemView.findViewById(R.id.btnEliminarPadre)
     }
 
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int
-    ): ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_padre, parent, false)
@@ -47,10 +40,7 @@ class PadreAdapter(
         return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(
-        holder: ViewHolder,
-        position: Int
-    ) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         val padre = lista[position]
 
@@ -59,58 +49,78 @@ class PadreAdapter(
 
         holder.btnInfo.setOnClickListener {
 
-            val dialog = InfoPadreDialog(
-                padre.nombre,
-                padre.telefono,
-                listOf(
-                    "Juan Perez",
-                    "Maria Perez",
-                    "Carlos Perez"
-                )
-            )
+            padre.id?.let { id ->
 
-            dialog.show(
-                (holder.itemView.context as androidx.fragment.app.FragmentActivity)
-                    .supportFragmentManager,
-                "InfoPadre"
-            )
-        }
+                RetrofitClient.instance.obtenerNinosDePadre(id)
+                    .enqueue(object : retrofit2.Callback<List<Nino>> {
 
+                        override fun onResponse(
+                            call: retrofit2.Call<List<Nino>>,
+                            response: retrofit2.Response<List<Nino>>
+                        ) {
 
-        holder.btnEditar.setOnClickListener {
+                            if (response.isSuccessful) {
 
-            val dialog = EditarPadreDialog(
-                padre.nombre,
-                padre.telefono
-            )
+                                val listaNinos = response.body() ?: emptyList()
 
-            dialog.show(
-                (holder.itemView.context as androidx.fragment.app.FragmentActivity)
-                    .supportFragmentManager,
-                "EditarPadre"
-            )
-        }
+                                val nombres = listaNinos.map { it.nombre }
 
+                                val dialog = InfoPadreDialog(
+                                    padre.nombre,
+                                    padre.telefono,
+                                    nombres
+                                )
 
-        holder.btnEliminar.setOnClickListener {
+                                dialog.show(
+                                    (holder.itemView.context as androidx.fragment.app.FragmentActivity)
+                                        .supportFragmentManager,
+                                    "InfoPadre"
+                                )
 
-            val activity = holder.itemView.context as FragmentActivity
+                            }
 
-            val dialog = EliminarPadreDialog(padre.nombre) {
+                        }
 
-                lista.removeAt(holder.adapterPosition)
+                        override fun onFailure(
+                            call: retrofit2.Call<List<Nino>>,
+                            t: Throwable
+                        ) {}
 
-                notifyItemRemoved(holder.adapterPosition)
+                    })
 
             }
 
-            dialog.show(activity.supportFragmentManager, "EliminarPadre")
+        }
+
+        holder.btnEliminar.setOnClickListener {
+
+            onEliminarClick(padre)
+
+        }
+
+        holder.btnEditar.setOnClickListener {
+
+            padre.id?.let { id ->
+
+                val dialog = EditarPadreDialog(
+                    id,
+                    padre.nombre,
+                    padre.telefono
+                ) { nombreNuevo, telefonoNuevo ->
+
+                    onEditarClick(padre, nombreNuevo, telefonoNuevo)
+
+                }
+
+                val activity = holder.itemView.context as FragmentActivity
+
+                dialog.show(activity.supportFragmentManager, "EditarPadre")
+
+            }
+
         }
 
     }
 
-    override fun getItemCount(): Int {
-
-        return lista.size
-    }
+    override fun getItemCount(): Int = lista.size
 }

@@ -1,7 +1,8 @@
 package com.example.pasitos.schemas
 
 data class Nino(
+    val id: Int? = null,
     val nombre: String,
-    val padre: String,
-    val guarderia: String
+    val padre_id: Int,
+    val sucursal: Int
 )

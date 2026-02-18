@@ -10,7 +10,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Agregar Maestro"
+        android:text="Editar Maestro"
         android:textSize="20sp"
         android:textStyle="bold"
         android:layout_marginBottom="16dp"/>
@@ -18,12 +18,18 @@
     <EditText
         android:id="@+id/txtUsuario"
         android:layout_width="match_parent"
+        android:singleLine="true"
+        android:imeOptions="actionDone"
+
         android:layout_height="wrap_content"
         android:hint="Usuario"/>
 
     <EditText
         android:id="@+id/txtContrasena"
         android:layout_width="match_parent"
+        android:singleLine="true"
+        android:imeOptions="actionDone"
+
         android:layout_height="wrap_content"
         android:hint="Contraseña"
         android:layout_marginTop="8dp"/>
@@ -32,6 +38,9 @@
         android:id="@+id/txtNombre"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:imeOptions="actionDone"
+
         android:hint="Nombre"
         android:layout_marginTop="8dp"/>
 
@@ -39,7 +48,12 @@
         android:id="@+id/txtTelefono"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:imeOptions="actionDone"
+
         android:hint="Teléfono"
+        android:inputType="phone"
+        android:maxLength="10"
         android:layout_marginTop="8dp"/>
 
     <Spinner

@@ -14,13 +14,11 @@ class InfoMaestroDialog(
     private val contrasena: String,
     private val nombre: String,
     private val telefono: String,
-    private val guarderia: String
+    private val guarderia: Int
 ) : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-
-        val view = LayoutInflater.from(requireContext())
-            .inflate(R.layout.dialog_info_maestro, null)
+        val view = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_info_maestro, null)
 
         val txtUsuario = view.findViewById<TextView>(R.id.txtUsuarioInfo)
         val txtContrasena = view.findViewById<TextView>(R.id.txtContrasena)
@@ -33,11 +31,14 @@ class InfoMaestroDialog(
         txtContrasena.text = contrasena
         txtNombre.text = nombre
         txtTelefono.text = telefono
-        txtGuarderia.text = guarderia
 
-        btnCerrar.setOnClickListener {
-            dismiss()
+        txtGuarderia.text = when (guarderia) {
+            1 -> "Tulipanes"
+            2 -> "Pinos"
+            else -> "Desconocido"
         }
+
+        btnCerrar.setOnClickListener { dismiss() }
 
         return AlertDialog.Builder(requireContext())
             .setTitle("Información del Maestro")

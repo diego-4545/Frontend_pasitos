@@ -27,7 +27,14 @@ class InfoNinoDialog(
 
         txtNombre.text = nombre
         txtPadre.text = padre
-        txtGuarderia.text = guarderia
+        val guarderiaTexto = when (guarderia.toIntOrNull()) {
+            1 -> "Tulipanes"
+            2 -> "Pinos"
+            else -> "Desconocido"
+        }
+
+        txtGuarderia.text = guarderiaTexto
+
 
         btnCerrar.setOnClickListener {
             dismiss()
