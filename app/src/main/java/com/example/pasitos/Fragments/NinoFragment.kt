@@ -32,7 +32,7 @@ class NinoFragment : Fragment(R.layout.fragment_nino) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recycler = view.findViewById(R.id.recyclerNinos)
+        recycler = view.findViewById(R.id.recyclerNino)
         recycler.layoutManager = LinearLayoutManager(requireContext())
 
         cargarPadres()
@@ -121,7 +121,6 @@ class NinoFragment : Fragment(R.layout.fragment_nino) {
                             dialog.show(parentFragmentManager, "EliminarNino")
                         },
                         onEditar = { nino ->
-                            cargarPadres()
                             editarNino(nino)
                         },
                         onInfo = { nino ->

@@ -22,7 +22,7 @@ class MaestroActivity : AppCompatActivity() {
         val screenHeight = displayMetrics.heightPixels
 
         val density = resources.displayMetrics.density
-        val maxWidth = (600 * density).toInt()
+        val maxWidth = (500 * density).toInt()
         val maxHeight = (725 * density).toInt()
 
         val finalWidth = if (screenWidth > maxWidth) maxWidth else screenWidth
