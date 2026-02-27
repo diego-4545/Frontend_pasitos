@@ -38,7 +38,6 @@ class EntradasActivity : AppCompatActivity() {
         val adapter = com.example.pasitos.adapters.EntradasAdapter(this)
         viewPager.adapter = adapter
 
-        //Botones de menu superior
         val casa = findViewById<ImageButton>(R.id.casa)
         val salida = findViewById<ImageButton>(R.id.salida)
 
@@ -47,7 +46,7 @@ class EntradasActivity : AppCompatActivity() {
         }
 
         casa.setOnClickListener {
-            startActivity(Intent(this, AdminActivity::class.java))
+            startActivity(Intent(this, MaestroActivity::class.java))
         }
     }
 }

@@ -9,12 +9,15 @@ import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.example.pasitos.R
 import com.example.pasitos.dialogs.EntradasDialog
-import com.example.pasitos.schemas.Nino // Asegúrate de que tu modelo se llame así
 import com.example.pasitos.network.RetrofitClient
+import com.example.pasitos.schemas.FechaCreate
+import com.example.pasitos.schemas.Nino
 import com.google.android.material.button.MaterialButton
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.text.SimpleDateFormat
+import java.util.*
 
 class EntradasNinosAdapter(
     private val lista: MutableList<Nino>,
@@ -22,7 +25,6 @@ class EntradasNinosAdapter(
 ) : RecyclerView.Adapter<EntradasNinosAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        // IDs exactos de tu item_entradas.xml
         val txtNombre: TextView = itemView.findViewById(R.id.txtNombre)
         val btnAgregar: MaterialButton = itemView.findViewById(R.id.btnAgregar)
     }
@@ -34,23 +36,90 @@ class EntradasNinosAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+
         val nino = lista[position]
         holder.txtNombre.text = nino.nombre
 
-        // 1. IMPORTANTE: Necesitamos el contexto como FragmentActivity
         val activity = holder.itemView.context as? FragmentActivity
 
         holder.btnAgregar.setOnClickListener {
-            // 2. Verificamos que la activity no sea nula
+
             activity?.let {
+
                 val dialog = EntradasDialog(nino.nombre) {
-                    // Aquí va lo que pasará al confirmar (por ahora vacío o un Toast)
-                    println("Confirmado para ${nino.nombre}")
+
+                    val calendar = Calendar.getInstance()
+
+                    val formatoFecha = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                    val formatoHora = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+
+                    val fechaActual = formatoFecha.format(calendar.time)
+                    val horaInicio = formatoHora.format(calendar.time)
+
+                    val ninoId = nino.id
+
+                    if (ninoId == null) {
+                        Toast.makeText(
+                            holder.itemView.context,
+                            "Error: niño sin ID",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        return@EntradasDialog
+                    }
+
+                    // 🔥 SOLO enviamos lo que el backend necesita
+                    val nuevaFecha = FechaCreate(
+                        fecha = fechaActual,
+                        hora_inicio = horaInicio,
+                        nino_id = ninoId
+                    )
+
+                    RetrofitClient.instance.crearFecha(nuevaFecha)
+                        .enqueue(object : Callback<Any> {
+
+                            override fun onResponse(
+                                call: Call<Any>,
+                                response: Response<Any>
+                            ) {
+                                if (response.isSuccessful) {
+
+                                    Toast.makeText(
+                                        holder.itemView.context,
+                                        "Entrada registrada",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+
+                                    refrescar()
+
+                                } else {
+                                    Toast.makeText(
+                                        holder.itemView.context,
+                                        "Error servidor ${response.code()}",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            }
+
+                            override fun onFailure(call: Call<Any>, t: Throwable) {
+                                Toast.makeText(
+                                    holder.itemView.context,
+                                    "Error conexión: ${t.message}",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                        })
                 }
-                // 3. Mostramos el diálogo usando el manager de la actividad
+
                 dialog.show(it.supportFragmentManager, "EntradasDialog")
             }
         }
     }
+
     override fun getItemCount(): Int = lista.size
+
+    fun actualizarLista(nuevaLista: List<Nino>) {
+        lista.clear()
+        lista.addAll(nuevaLista)
+        notifyDataSetChanged()
+    }
 }

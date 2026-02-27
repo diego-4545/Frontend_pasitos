@@ -3,6 +3,8 @@ package com.example.pasitos.network
 import com.example.pasitos.schemas.Maestro
 import com.example.pasitos.schemas.Padre
 import com.example.pasitos.schemas.Nino
+import com.example.pasitos.schemas.FechaCreate
+
 
 import retrofit2.Call
 import retrofit2.http.*
@@ -58,5 +60,15 @@ interface ApiService {
     @DELETE("maestros/{id}")
     fun eliminarMaestro(@Path("id") id: Int): Call<Void>
 
+    // Obtener niños disponibles por sucursal
+    @GET("fechas/disponibles/{sucursal_id}")
+    fun obtenerNinosDisponibles(
+        @Path("sucursal_id") sucursalId: Int
+    ): Call<List<Nino>>
+
+    @POST("fechas/")
+    fun crearFecha(
+        @Body fecha: FechaCreate
+    ): Call<Any>
 
 }
