@@ -49,14 +49,14 @@ class NinoAdapter(
             val dialog = InfoNinoDialog(
                 nombre = nino.nombre,
                 padre = nombrePadre,
-                guarderia = nino.sucursal.toString()
+                guarderia = nino.sucursal.toString(),
+                paquete = nino.paquete
             )
             dialog.show(
-                (holder.itemView.context as androidx.fragment.app.FragmentActivity).supportFragmentManager,
+                (holder.itemView.context as FragmentActivity).supportFragmentManager,
                 "InfoNino"
             )
         }
-
         holder.btnEditar.setOnClickListener {
             val activity = holder.itemView.context as FragmentActivity
             val dialog = EditarNinoDialog(
@@ -64,7 +64,6 @@ class NinoAdapter(
                 listaPadres = listaPadres,
                 onGuardarClick = { ninoActualizado ->
                     onEditar(ninoActualizado)
-
                 }
             )
             dialog.show(activity.supportFragmentManager, "EditarNino")

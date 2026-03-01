@@ -25,7 +25,7 @@ class SalidasDialog(
         val btnCancelar = view.findViewById<Button>(R.id.button)
         val btnConfirmar = view.findViewById<Button>(R.id.button2)
 
-        txtTitulo.text = "¿Quieres confirmar la entrada de $nombreNino?"
+        txtTitulo.text = "¿Quieres confirmar la salida de $nombreNino?"
 
         btnCancelar.setOnClickListener {
             dismiss()

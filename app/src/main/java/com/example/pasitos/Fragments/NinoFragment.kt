@@ -1,7 +1,6 @@
 package com.example.pasitos.Fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.SearchView
 import android.widget.Toast
@@ -39,42 +38,53 @@ class NinoFragment : Fragment(R.layout.fragment_nino) {
 
         val btnAgregar = view.findViewById<MaterialButton>(R.id.btnAgregar)
         btnAgregar.setOnClickListener {
-            cargarPadres()
-            if (listaPadres.isEmpty()) {
-                Toast.makeText(requireContext(), "No hay padres disponibles", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+            RetrofitClient.instance.obtenerPadres().enqueue(object : Callback<List<Padre>> {
+                override fun onResponse(call: Call<List<Padre>>, response: Response<List<Padre>>) {
+                    if (response.isSuccessful && response.body() != null) {
+                        listaPadres = response.body()!!
 
-            val nombresPadres = mutableListOf("Seleccionar padre...").apply {
-                addAll(listaPadres.map { it.nombre })
-            }
+                        if (listaPadres.isEmpty()) {
+                            Toast.makeText(requireContext(), "No hay padres disponibles", Toast.LENGTH_SHORT).show()
+                            return
+                        }
 
-            val dialog = AgregarNinoDialog(nombresPadres) { nombreNino, nombrePadreSeleccionado, sucursalStr ->
-                if (nombrePadreSeleccionado == "Seleccionar padre...") {
-                    Toast.makeText(requireContext(), "Debes seleccionar un padre", Toast.LENGTH_SHORT).show()
-                    return@AgregarNinoDialog
+                        val nombresPadres = mutableListOf("Seleccionar padre...").apply {
+                            addAll(listaPadres.map { it.nombre })
+                        }
+
+                        val dialog = AgregarNinoDialog(nombresPadres) { nombreNino, nombrePadreSeleccionado, sucursalInt, paqueteHoras ->
+                            if (nombrePadreSeleccionado == "Seleccionar padre...") {
+                                Toast.makeText(requireContext(), "Debes seleccionar un padre", Toast.LENGTH_SHORT).show()
+                                return@AgregarNinoDialog
+                            }
+
+                            val padreId = listaPadres.find { it.nombre == nombrePadreSeleccionado }?.id
+                            if (padreId == null) {
+                                Toast.makeText(requireContext(), "Error: padre no encontrado", Toast.LENGTH_SHORT).show()
+                                return@AgregarNinoDialog
+                            }
+
+                            val nuevoNino = Nino(
+                                nombre = nombreNino,
+                                padre_id = padreId,
+                                sucursal = sucursalInt,
+                                paquete = paqueteHoras
+                            )
+
+                            crearNino(nuevoNino) {
+                                cargarPadres()
+                            }
+                        }
+
+                        dialog.show(parentFragmentManager, "AgregarNino")
+                    }
                 }
 
-                val padreId = listaPadres.find { it.nombre == nombrePadreSeleccionado }?.id
-                if (padreId == null) {
-                    Toast.makeText(requireContext(), "Error: padre no encontrado", Toast.LENGTH_SHORT).show()
-                    return@AgregarNinoDialog
+                override fun onFailure(call: Call<List<Padre>>, t: Throwable) {
+                    Toast.makeText(requireContext(), "Error al cargar padres", Toast.LENGTH_SHORT).show()
                 }
-
-                val sucursalInt = try {
-                    sucursalStr.toInt()
-                } catch (e: NumberFormatException) {
-                    Toast.makeText(requireContext(), "Sucursal debe ser un número", Toast.LENGTH_SHORT).show()
-                    return@AgregarNinoDialog
-                }
-
-                val nuevoNino = Nino(nombre = nombreNino, padre_id = padreId, sucursal = sucursalInt)
-                crearNino(nuevoNino)
-            }
-
-            dialog.show(parentFragmentManager, "AgregarNino")
+            })
         }
-
         val searchView = view.findViewById<SearchView>(R.id.searchNino)
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?) = false
@@ -90,7 +100,6 @@ class NinoFragment : Fragment(R.layout.fragment_nino) {
             override fun onResponse(call: Call<List<Padre>>, response: Response<List<Padre>>) {
                 if (response.isSuccessful && response.body() != null) {
                     listaPadres = response.body()!!
-                    Log.d("NINO_DEBUG", "Padres cargados: $listaPadres")
                     cargarNinos()
                 }
             }
@@ -128,7 +137,8 @@ class NinoFragment : Fragment(R.layout.fragment_nino) {
                             val dialog = InfoNinoDialog(
                                 nombre = nino.nombre,
                                 padre = nombrePadre,
-                                guarderia = nino.sucursal.toString()
+                                guarderia = nino.sucursal.toString(),
+                                paquete = nino.paquete
                             )
                             dialog.show(
                                 (recycler.context as androidx.fragment.app.FragmentActivity).supportFragmentManager,
@@ -139,8 +149,6 @@ class NinoFragment : Fragment(R.layout.fragment_nino) {
 
                     recycler.adapter = adapter
                     adapter.notifyDataSetChanged()
-
-                    Log.d("NINO_DEBUG", "Niños cargados: ${listaNinos.size}")
                 }
             }
 
@@ -185,12 +193,12 @@ class NinoFragment : Fragment(R.layout.fragment_nino) {
             })
     }
 
-    private fun crearNino(nuevoNino: Nino) {
+    private fun crearNino(nuevoNino: Nino, onSuccess: (() -> Unit)? = null) {
         RetrofitClient.instance.crearNino(nuevoNino).enqueue(object : Callback<Nino> {
             override fun onResponse(call: Call<Nino>, response: Response<Nino>) {
                 if (response.isSuccessful && response.body() != null) {
                     Toast.makeText(requireContext(), "Niño agregado correctamente", Toast.LENGTH_SHORT).show()
-                    cargarNinos()
+                    onSuccess?.invoke()
                 } else {
                     Toast.makeText(requireContext(), "Error al agregar niño", Toast.LENGTH_SHORT).show()
                 }

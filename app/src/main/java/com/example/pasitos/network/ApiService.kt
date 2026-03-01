@@ -5,6 +5,12 @@ import com.example.pasitos.schemas.Padre
 import com.example.pasitos.schemas.Nino
 import com.example.pasitos.schemas.FechaCreate
 import com.example.pasitos.schemas.FechaAbierta
+import com.example.pasitos.schemas.FechaUpdate
+import com.example.pasitos.schemas.PagoCreate
+import com.example.pasitos.schemas.PagoResponse
+import com.example.pasitos.schemas.PagoUpdate
+
+
 
 
 
@@ -73,4 +79,34 @@ interface ApiService {
     fun obtenerFechasAbiertas(
         @Path("sucursal_id") sucursalId: Int
     ): Call<List<FechaAbierta>>
+
+    @PUT("fechas/{id}")
+    fun actualizarFecha(
+        @Path("id") fechaId: Int,
+        @Body fechaUpdate: FechaUpdate
+    ): Call<FechaAbierta>
+
+    @POST("pagos/")
+    fun crearPago(
+        @Body pago: PagoCreate
+    ): Call<PagoResponse>
+
+    @GET("pagos/nino/{nino_id}")
+    fun obtenerPagosPorNino(
+        @Path("nino_id") ninoId: Int
+    ): Call<List<PagoResponse>>
+
+    @PUT("pagos/{pago_id}")
+    fun actualizarPago(
+        @Path("pago_id") pagoId: Int,
+        @Body pagoUpdate: PagoUpdate
+    ): Call<PagoResponse>
+
+    @POST("pagos/registrar_salida/{nino_id}")
+    fun registrarSalida(
+        @Path("nino_id") ninoId: Int,
+        @Query("paquete") paquete: Int
+    ): Call<PagoResponse>
+
+
 }

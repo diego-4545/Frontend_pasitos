@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
@@ -17,12 +16,11 @@
 
     <EditText
         android:id="@+id/editNombre"
-        android:singleLine="true"
-        android:imeOptions="actionDone"
-
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nombre"/>
+        android:hint="Nombre"
+        android:singleLine="true"
+        android:imeOptions="actionDone"/>
 
 
     <Spinner
@@ -36,6 +34,13 @@
         android:layout_marginTop="8dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+
+    <Spinner
+        android:id="@+id/spPaqueteEditar"
+        android:layout_marginTop="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
 
     <Button
         android:id="@+id/btnGuardarCambios"

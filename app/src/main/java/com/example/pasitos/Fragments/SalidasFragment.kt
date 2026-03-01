@@ -35,9 +35,13 @@ class SalidasFragment : Fragment() {
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerSalidas)
         val searchView = view.findViewById<SearchView>(R.id.searchSalidas)
 
-        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        adapter = SalidasNinosAdapter(mutableListOf())
+        adapter = SalidasNinosAdapter(
+            mutableListOf(),
+            parentFragmentManager
+        )
+
         recyclerView.adapter = adapter
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -74,7 +78,7 @@ class SalidasFragment : Fragment() {
 
                     } else {
                         Toast.makeText(
-                            context,
+                            requireContext(),
                             "Error servidor: ${response.code()}",
                             Toast.LENGTH_LONG
                         ).show()
@@ -83,11 +87,12 @@ class SalidasFragment : Fragment() {
 
                 override fun onFailure(call: Call<List<FechaAbierta>>, t: Throwable) {
                     Toast.makeText(
-                        context,
+                        requireContext(),
                         "Error al cargar niños",
                         Toast.LENGTH_LONG
                     ).show()
-                }            })
+                }
+            })
     }
 
     private fun filtrarLista(texto: String?) {

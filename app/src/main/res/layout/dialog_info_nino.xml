@@ -43,6 +43,19 @@
         android:id="@+id/txtGuarderiaInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingBottom="12dp"/>
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Paquete"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/txtPaqueteInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:paddingBottom="20dp"/>
 
 
