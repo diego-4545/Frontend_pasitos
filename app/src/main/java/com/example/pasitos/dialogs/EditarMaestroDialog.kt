@@ -20,13 +20,11 @@ import retrofit2.http.Body
 import retrofit2.http.PUT
 import retrofit2.http.Path
 
-// DTO respuesta
 data class EditarMaestroResponse(
     val status: String,
     val mensaje: String
 )
 
-// API solo para este dialog
 interface ApiServiceEditar {
     @PUT("maestros/{id}")
     suspend fun editarMaestro(
@@ -35,7 +33,6 @@ interface ApiServiceEditar {
     ): EditarMaestroResponse
 }
 
-// Retrofit local
 object RetrofitClientEditar {
 
     private const val BASE_URL = "https://backend-pasitos.onrender.com/"
@@ -78,7 +75,6 @@ class EditarMaestroDialog(
         val spGuarderia = view.findViewById<Spinner>(R.id.spGuarderia)
         val btnGuardar = view.findViewById<Button>(R.id.btnGuardar)
 
-        // Precargar datos
         txtUsuario.setText(maestro.username)
         txtContrasena.setText(maestro.password)
         txtNombre.setText(maestro.nombre)

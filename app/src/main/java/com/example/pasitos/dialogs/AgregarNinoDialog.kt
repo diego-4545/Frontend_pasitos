@@ -22,12 +22,10 @@ class AgregarNinoDialog(
         val spinnerSucursal = view.findViewById<Spinner>(R.id.spGuarderia)
         val btnAgregar = view.findViewById<Button>(R.id.btnGuardar)
 
-        // Spinner de padres
         val adapterPadres = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, listaPadres)
         adapterPadres.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerPadre.adapter = adapterPadres
 
-        // Spinner de sucursales
         val sucursales = arrayOf("Seleccionar sucursal...", "Tulipanes", "Pinos")
         val adapterSuc = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, sucursales)
         adapterSuc.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)

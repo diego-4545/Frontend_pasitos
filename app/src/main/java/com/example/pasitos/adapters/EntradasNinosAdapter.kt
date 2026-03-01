@@ -67,7 +67,6 @@ class EntradasNinosAdapter(
                         return@EntradasDialog
                     }
 
-                    // 🔥 SOLO enviamos lo que el backend necesita
                     val nuevaFecha = FechaCreate(
                         fecha = fechaActual,
                         hora_inicio = horaInicio,
@@ -103,11 +102,10 @@ class EntradasNinosAdapter(
                             override fun onFailure(call: Call<Any>, t: Throwable) {
                                 Toast.makeText(
                                     holder.itemView.context,
-                                    "Error conexión: ${t.message}",
+                                    "Error al cargar niños",
                                     Toast.LENGTH_LONG
                                 ).show()
-                            }
-                        })
+                            }                        })
                 }
 
                 dialog.show(it.supportFragmentManager, "EntradasDialog")

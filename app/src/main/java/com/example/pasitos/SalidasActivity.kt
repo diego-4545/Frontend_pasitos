@@ -34,9 +34,9 @@ class SalidasActivity : AppCompatActivity() {
             insets
         }
 
-        //val viewPager = findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.viewEntradas)
-        //val adapter = com.example.pasitos.adapters.EntradasAdapter(this)
-        //viewPager.adapter = adapter
+        val viewPager = findViewById<androidx.viewpager2.widget.ViewPager2>(R.id.viewSalidas)
+        val adapter = com.example.pasitos.adapters.SalidasAdapter(this)
+        viewPager.adapter = adapter
 
         val casa = findViewById<ImageButton>(R.id.casa)
         val salida = findViewById<ImageButton>(R.id.salida)

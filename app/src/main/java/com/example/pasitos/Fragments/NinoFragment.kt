@@ -91,7 +91,7 @@ class NinoFragment : Fragment(R.layout.fragment_nino) {
                 if (response.isSuccessful && response.body() != null) {
                     listaPadres = response.body()!!
                     Log.d("NINO_DEBUG", "Padres cargados: $listaPadres")
-                    cargarNinos() // cargamos niños después de padres
+                    cargarNinos()
                 }
             }
 
@@ -109,7 +109,7 @@ class NinoFragment : Fragment(R.layout.fragment_nino) {
                 if (response.isSuccessful && response.body() != null) {
                     listaNinos.clear()
                     listaNinos.addAll(response.body()!!)
-                    listaNinosFiltrada.addAll(listaNinos) // IMPORTANTE: para búsqueda
+                    listaNinosFiltrada.addAll(listaNinos)
 
                     adapter = NinoAdapter(
                         listaNinosFiltrada,

@@ -10,37 +10,34 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.pasitos.R
-import com.example.pasitos.adapters.EntradasNinosAdapter
+import com.example.pasitos.adapters.SalidasNinosAdapter
 import com.example.pasitos.network.RetrofitClient
-import com.example.pasitos.schemas.Nino
+import com.example.pasitos.schemas.FechaAbierta
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class EntradasFragment : Fragment() {
+class SalidasFragment : Fragment() {
 
-    private lateinit var adapter: EntradasNinosAdapter
-    private var listaCompleta: List<Nino> = emptyList()
+    private lateinit var adapter: SalidasNinosAdapter
+    private var listaCompleta: List<FechaAbierta> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_entradas, container, false)
+        return inflater.inflate(R.layout.fragment_salidas, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerEntradas)
-        val searchView = view.findViewById<SearchView>(R.id.searchEntradas)
+        val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerSalidas)
+        val searchView = view.findViewById<SearchView>(R.id.searchSalidas)
 
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-        adapter = EntradasNinosAdapter(mutableListOf()) {
-            cargarNinosDisponibles()
-        }
-
+        adapter = SalidasNinosAdapter(mutableListOf())
         recyclerView.adapter = adapter
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -55,23 +52,23 @@ class EntradasFragment : Fragment() {
             }
         })
 
-        cargarNinosDisponibles()
+        cargarFechasAbiertas()
     }
 
-    private fun cargarNinosDisponibles() {
+    private fun cargarFechasAbiertas() {
 
         val sucursalId = 1
 
-        RetrofitClient.instance.obtenerNinosDisponibles(sucursalId)
-            .enqueue(object : Callback<List<Nino>> {
+        RetrofitClient.instance.obtenerFechasAbiertas(sucursalId)
+            .enqueue(object : Callback<List<FechaAbierta>> {
 
                 override fun onResponse(
-                    call: Call<List<Nino>>,
-                    response: Response<List<Nino>>
+                    call: Call<List<FechaAbierta>>,
+                    response: Response<List<FechaAbierta>>
                 ) {
                     if (response.isSuccessful) {
-                        val lista = response.body() ?: emptyList()
 
+                        val lista = response.body() ?: emptyList()
                         listaCompleta = lista
                         adapter.actualizarLista(lista)
 
@@ -84,7 +81,7 @@ class EntradasFragment : Fragment() {
                     }
                 }
 
-                override fun onFailure(call: Call<List<Nino>>, t: Throwable) {
+                override fun onFailure(call: Call<List<FechaAbierta>>, t: Throwable) {
                     Toast.makeText(
                         context,
                         "Error al cargar niños",
@@ -103,7 +100,7 @@ class EntradasFragment : Fragment() {
         val textoNormalizado = texto.trim()
 
         val listaFiltrada = listaCompleta.filter {
-            it.nombre.trim().contains(textoNormalizado, ignoreCase = true)
+            it.nombre.contains(textoNormalizado, ignoreCase = true)
         }
 
         adapter.actualizarLista(listaFiltrada)

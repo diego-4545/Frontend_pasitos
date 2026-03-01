@@ -44,19 +44,17 @@ class MaestroAdapter(
 
         val activity = holder.itemView.context as FragmentActivity
 
-        // INFO
         holder.btnInfo.setOnClickListener {
             val dialog = InfoMaestroDialog(
                 usuario = maestro.username,
                 contrasena = maestro.password,
                 nombre = maestro.nombre,
                 telefono = maestro.telefono,
-                guarderia = maestro.sucursal ?: 0 // si es null, mostramos 0 = desconocido
+                guarderia = maestro.sucursal ?: 0
             )
             dialog.show(activity.supportFragmentManager, "InfoMaestro")
         }
 
-        // EDITAR
         holder.btnEditar.setOnClickListener {
             val dialog = EditarMaestroDialog(maestro) {
                 refrescar()
@@ -64,7 +62,6 @@ class MaestroAdapter(
             dialog.show(activity.supportFragmentManager, "EditarMaestro")
         }
 
-        // ELIMINAR
         holder.btnEliminar.setOnClickListener {
 
             val pos = holder.bindingAdapterPosition

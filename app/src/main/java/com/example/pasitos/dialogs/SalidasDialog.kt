@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import com.example.pasitos.R
 
-class EntradasDialog(
+class SalidasDialog(
     private val nombreNino: String,
     private val alConfirmar: () -> Unit
 ) : DialogFragment() {
@@ -19,7 +19,7 @@ class EntradasDialog(
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.dialog_agregar_entrada, container, false)
+        val view = inflater.inflate(R.layout.dialog_agregar_salida, container, false)
 
         val txtTitulo = view.findViewById<TextView>(R.id.txtPregunta)
         val btnCancelar = view.findViewById<Button>(R.id.button)

@@ -33,7 +33,6 @@ class AgregarPadreDialog(
             val nombre = txtNombre.text.toString().trim()
             val telefono = txtTelefono.text.toString().trim()
 
-            // VALIDACIONES
             if (nombre.isEmpty()) {
                 Toast.makeText(requireContext(), "Ingrese el nombre", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -49,7 +48,6 @@ class AgregarPadreDialog(
                 return@setOnClickListener
             }
 
-            // ENVÍA LOS DATOS AL FRAGMENT
             onPadreAgregado?.invoke(nombre, telefono)
 
             dialog.dismiss()

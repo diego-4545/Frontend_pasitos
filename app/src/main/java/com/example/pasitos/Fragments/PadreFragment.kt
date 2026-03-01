@@ -59,7 +59,6 @@ class PadreFragment : Fragment(R.layout.fragment_padre) {
                 if (response.isSuccessful && response.body() != null) {
                     listaNinos.clear()
                     listaNinos.addAll(response.body()!!)
-                    // Después de cargar los niños, cargamos padres
                     cargarPadres()
                 }
             }

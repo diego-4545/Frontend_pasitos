@@ -4,6 +4,8 @@ import com.example.pasitos.schemas.Maestro
 import com.example.pasitos.schemas.Padre
 import com.example.pasitos.schemas.Nino
 import com.example.pasitos.schemas.FechaCreate
+import com.example.pasitos.schemas.FechaAbierta
+
 
 
 import retrofit2.Call
@@ -45,22 +47,18 @@ interface ApiService {
     @PUT("ninos/{id}")
     fun editarNino(@Path("id") id: Int, @Body nino: Nino): Call<Nino>
 
-    // Obtener todos los maestros
     @GET("maestros")
     fun obtenerMaestros(): Call<List<Maestro>>
 
-    // Crear maestro
     @POST("maestros")
     fun crearMaestro(@Body maestro: Maestro): Call<Maestro>
 
-    // Editar maestro
     @PUT("maestros/{id}")
     fun editarMaestro(@Path("id") id: Int, @Body maestro: Maestro): Call<Maestro>
 
     @DELETE("maestros/{id}")
     fun eliminarMaestro(@Path("id") id: Int): Call<Void>
 
-    // Obtener niños disponibles por sucursal
     @GET("fechas/disponibles/{sucursal_id}")
     fun obtenerNinosDisponibles(
         @Path("sucursal_id") sucursalId: Int
@@ -71,4 +69,8 @@ interface ApiService {
         @Body fecha: FechaCreate
     ): Call<Any>
 
+    @GET("fechas/abiertas/{sucursal_id}")
+    fun obtenerFechasAbiertas(
+        @Path("sucursal_id") sucursalId: Int
+    ): Call<List<FechaAbierta>>
 }

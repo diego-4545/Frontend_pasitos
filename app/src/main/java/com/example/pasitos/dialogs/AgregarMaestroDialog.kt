@@ -23,19 +23,16 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.POST
 
-// DTO para respuesta del servidor
 data class CrearMaestroResponse(val status: String, val mensaje: String)
 
-// Retrofit API
 interface ApiService {
-    @POST("maestros/") // coincide con el prefix de tu router FastAPI
+    @POST("maestros/")
     suspend fun crearMaestro(@Body maestro: Maestro): CrearMaestroResponse
 }
 
-// Retrofit Client con API Key
 object RetrofitClient {
-    private const val BASE_URL = "https://backend-pasitos.onrender.com/" // tu URL
-    private const val API_KEY = "m802334711-5085abf5ad7f25fcb144e440" // <-- coloca tu API Key aquí
+    private const val BASE_URL = "https://backend-pasitos.onrender.com/"
+    private const val API_KEY = "m802334711-5085abf5ad7f25fcb144e440"
 
     val instance: ApiService by lazy {
         val client = OkHttpClient.Builder()
@@ -72,7 +69,6 @@ class AgregarMaestroDialog(
         val spGuarderia = view.findViewById<Spinner>(R.id.spGuarderia)
         val btnGuardar = view.findViewById<Button>(R.id.btnGuardar)
 
-        // Spinner
         val guarderias = arrayOf("Seleccionar sucursal...", "Tulipanes", "Pinos")
         val adapterSpinner = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_dropdown_item, guarderias)
         spGuarderia.adapter = adapterSpinner
@@ -89,7 +85,6 @@ class AgregarMaestroDialog(
             val telefono = txtTelefono.text.toString().trim()
             val sucursal = spGuarderia.selectedItemPosition
 
-            // Validaciones locales
             if (usuario.isBlank() || contrasena.isBlank() || nombre.isBlank() || telefono.isBlank() || sucursal == 0) {
                 Toast.makeText(requireContext(), "Completa todos los campos", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -110,7 +105,6 @@ class AgregarMaestroDialog(
                 return@setOnClickListener
             }
 
-            // Crear objeto Maestro
             val maestro = Maestro(
                 nombre = nombre,
                 telefono = telefono,
@@ -119,7 +113,6 @@ class AgregarMaestroDialog(
                 sucursal = sucursal
             )
 
-            // Llamada al servidor
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     val respuesta = RetrofitClient.instance.crearMaestro(maestro)

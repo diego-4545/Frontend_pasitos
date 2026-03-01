@@ -16,7 +16,7 @@ import com.example.pasitos.schemas.Padre
 
 class NinoAdapter(
     private val lista: MutableList<Nino>,
-    private val listaPadres: List<Padre>,                 // <- asegúrate de tener esto
+    private val listaPadres: List<Padre>,
     private val onEliminar: (Nino) -> Unit,
     private val onEditar: (Nino) -> Unit,
     private val onInfo: (Nino) -> Unit
@@ -41,7 +41,6 @@ class NinoAdapter(
 
         holder.txtNombre.text = nino.nombre
 
-        // Mostramos nombre del padre según el ID
         val nombrePadre = listaPadres.find { it.id == nino.padre_id }?.nombre ?: "Desconocido"
         holder.txtPadre.text = nombrePadre
 
@@ -50,7 +49,7 @@ class NinoAdapter(
             val dialog = InfoNinoDialog(
                 nombre = nino.nombre,
                 padre = nombrePadre,
-                guarderia = nino.sucursal.toString() // o el nombre de guardería si lo tienes
+                guarderia = nino.sucursal.toString()
             )
             dialog.show(
                 (holder.itemView.context as androidx.fragment.app.FragmentActivity).supportFragmentManager,

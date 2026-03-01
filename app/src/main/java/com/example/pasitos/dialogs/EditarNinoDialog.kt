@@ -26,7 +26,6 @@ class EditarNinoDialog(
         val spinnerGuarderia = view.findViewById<Spinner>(R.id.spinnerGuarderia)
         val btnGuardar = view.findViewById<Button>(R.id.btnGuardarCambios)
 
-        // Spinner de padres
         val listaNombresPadres = listaPadres.map { it.nombre }
         val padresAdapter = ArrayAdapter(
             requireContext(),
@@ -35,7 +34,6 @@ class EditarNinoDialog(
         )
         spinnerPadre.adapter = padresAdapter
 
-        // Spinner de guarderías
         val guarderias = arrayOf("Tulipanes", "Pinos")
         val guarderiasAdapter = ArrayAdapter(
             requireContext(),
@@ -44,7 +42,6 @@ class EditarNinoDialog(
         )
         spinnerGuarderia.adapter = guarderiasAdapter
 
-        // Valores actuales
         editNombre.setText(ninoActual.nombre)
         val nombrePadreActual = listaPadres.find { it.id == ninoActual.padre_id }?.nombre ?: ""
         spinnerPadre.setSelection(listaNombresPadres.indexOf(nombrePadreActual).coerceAtLeast(0))
