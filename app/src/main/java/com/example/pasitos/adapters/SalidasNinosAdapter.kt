@@ -14,9 +14,7 @@ import com.example.pasitos.network.RetrofitClient
 import com.example.pasitos.schemas.FechaAbierta
 import com.example.pasitos.schemas.FechaUpdate
 import com.example.pasitos.schemas.Nino
-import com.example.pasitos.schemas.PagoCreate
 import com.example.pasitos.schemas.PagoResponse
-import com.example.pasitos.schemas.PagoUpdate
 import com.google.android.material.button.MaterialButton
 import retrofit2.Call
 import retrofit2.Callback
@@ -28,18 +26,6 @@ class SalidasNinosAdapter(
     private val lista: MutableList<FechaAbierta>,
     private val fragmentManager: FragmentManager
 ) : RecyclerView.Adapter<SalidasNinosAdapter.ViewHolder>() {
-
-    private val preciosPaquete = mapOf(
-        1 to 3150.0,
-        2 to 3350.0,
-        3 to 3550.0,
-        4 to 3750.0,
-        5 to 3950.0,
-        6 to 4200.0,
-        7 to 4750.0,
-        8 to 5000.0,
-        9 to 5300.0
-    )
 
     private fun horasDePaquete(paquete: Int): Int = paquete + 3
 
@@ -75,6 +61,7 @@ class SalidasNinosAdapter(
         lista.addAll(nuevaLista)
         notifyDataSetChanged()
     }
+
 
     private fun obtenerNinoYRegistrarSalida(holder: ViewHolder, position: Int, fecha: FechaAbierta) {
         val contexto = holder.itemView.context
@@ -123,7 +110,8 @@ class SalidasNinosAdapter(
                     if (response.isSuccessful) {
                         lista.removeAt(position)
                         notifyItemRemoved(position)
-                        actualizarPagos(fecha.nino_id, paquete, horasTotales, contexto)
+
+                        registrarSalidaEnPagos(fecha.nino_id, paquete, horasTotales, contexto)
                     } else {
                         Toast.makeText(contexto, "Error al registrar salida", Toast.LENGTH_LONG).show()
                     }
@@ -135,88 +123,28 @@ class SalidasNinosAdapter(
             })
     }
 
-    private fun actualizarPagos(ninoId: Int, paquete: Int, horasTotales: Int, contexto: Context) {
-        val cal = Calendar.getInstance()
-        val mesActual = cal.get(Calendar.MONTH) + 1
-        val anioActual = cal.get(Calendar.YEAR)
-
-        val precioPaquete = preciosPaquete[paquete] ?: 0.0
-        val horasIncluidas = horasDePaquete(paquete)
-
-        android.util.Log.d("DEBUG_PAGO", "paquete: $paquete | precioPaquete: $precioPaquete | horasIncluidas: $horasIncluidas | horasTotales: $horasTotales")
-
-        RetrofitClient.instance.obtenerPagosPorNino(ninoId)
-            .enqueue(object : Callback<List<PagoResponse>> {
-                override fun onResponse(call: Call<List<PagoResponse>>, response: Response<List<PagoResponse>>) {
-                    if (!response.isSuccessful) return
-
-                    val pagos = response.body() ?: emptyList()
-                    val pagoExistente = pagos.firstOrNull { it.mes == mesActual && it.anio == anioActual }
-
-                    android.util.Log.d("DEBUG_PAGO", "pagoExistente: $pagoExistente")
-
-                    if (pagoExistente == null) {
-                        val deudaInicial = if (horasTotales > horasIncluidas) {
-                            precioPaquete + 80.0
+    private fun registrarSalidaEnPagos(ninoId: Int, paquete: Int, horasTotales: Int, contexto: Context) {
+        RetrofitClient.instance.registrarSalida(ninoId, paquete, horasTotales)
+            .enqueue(object : Callback<PagoResponse> {
+                override fun onResponse(call: Call<PagoResponse>, response: Response<PagoResponse>) {
+                    if (response.isSuccessful) {
+                        val excedioHoras = horasTotales > horasDePaquete(paquete)
+                        val mensaje = if (excedioHoras) {
+                            "Salida registrada, se agregaron \$80 por hora extra"
                         } else {
-                            precioPaquete
+                            "Salida registrada correctamente"
                         }
-
-                        val nuevoPago = PagoCreate(
-                            nino_id = ninoId,
-                            mes = mesActual,
-                            anio = anioActual,
-                            deuda = deudaInicial
-                        )
-
-                        android.util.Log.d("DEBUG_PAGO", "Creando pago con deuda: $deudaInicial")
-
-                        RetrofitClient.instance.crearPago(nuevoPago)
-                            .enqueue(object : Callback<PagoResponse> {
-                                override fun onResponse(call: Call<PagoResponse>, response: Response<PagoResponse>) {
-                                    if (response.isSuccessful) {
-                                        android.util.Log.d("DEBUG_PAGO", "Pago creado: ${response.body()}")
-                                        Toast.makeText(contexto, "Salida registrada y pago creado", Toast.LENGTH_SHORT).show()
-                                    } else {
-                                        android.util.Log.e("DEBUG_PAGO", "Error al crear pago: ${response.code()} - ${response.errorBody()?.string()}")
-                                        Toast.makeText(contexto, "Error al crear pago", Toast.LENGTH_SHORT).show()
-                                    }
-                                }
-                                override fun onFailure(call: Call<PagoResponse>, t: Throwable) {}
-                            })
+                        Toast.makeText(contexto, mensaje, Toast.LENGTH_SHORT).show()
+                        android.util.Log.d("DEBUG_PAGO", "Pago registrado: ${response.body()}")
                     } else {
-                        val deudaActual = pagoExistente.deuda
-                        val nuevaDeuda = if (horasTotales > horasIncluidas) {
-                            deudaActual + 80.0
-                        } else {
-                            deudaActual
-                        }
-
-                        android.util.Log.d("DEBUG_PAGO", "deudaActual: $deudaActual | nuevaDeuda: $nuevaDeuda")
-
-                        if (nuevaDeuda > deudaActual) {
-                            val pagoUpdate = PagoUpdate(deuda = nuevaDeuda)
-                            RetrofitClient.instance.actualizarPago(pagoExistente.id, pagoUpdate)
-                                .enqueue(object : Callback<PagoResponse> {
-                                    override fun onResponse(call: Call<PagoResponse>, response: Response<PagoResponse>) {
-                                        if (response.isSuccessful) {
-                                            android.util.Log.d("DEBUG_PAGO", "Pago actualizado: ${response.body()}")
-                                            Toast.makeText(contexto, "Salida registrada, se agregaron $80 por hora extra", Toast.LENGTH_SHORT).show()
-                                        } else {
-                                            android.util.Log.e("DEBUG_PAGO", "Error al actualizar: ${response.code()} - ${response.errorBody()?.string()}")
-                                            Toast.makeText(contexto, "Error al actualizar pago", Toast.LENGTH_SHORT).show()
-                                        }
-                                    }
-                                    override fun onFailure(call: Call<PagoResponse>, t: Throwable) {}
-                                })
-                        } else {
-                            Toast.makeText(contexto, "Salida registrada correctamente", Toast.LENGTH_SHORT).show()
-                        }
+                        android.util.Log.e("DEBUG_PAGO", "Error al registrar pago: ${response.code()} - ${response.errorBody()?.string()}")
+                        Toast.makeText(contexto, "Error al registrar pago", Toast.LENGTH_SHORT).show()
                     }
                 }
 
-                override fun onFailure(call: Call<List<PagoResponse>>, t: Throwable) {
-                    Toast.makeText(contexto, "Error de conexión al obtener pagos", Toast.LENGTH_LONG).show()
+                override fun onFailure(call: Call<PagoResponse>, t: Throwable) {
+                    android.util.Log.e("DEBUG_PAGO", "Fallo al registrar pago: ${t.message}")
+                    Toast.makeText(contexto, "Error de conexión al registrar pago", Toast.LENGTH_SHORT).show()
                 }
             })
     }

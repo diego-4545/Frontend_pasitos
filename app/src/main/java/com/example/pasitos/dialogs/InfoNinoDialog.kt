@@ -38,15 +38,15 @@ class InfoNinoDialog(
         txtGuarderia.text = guarderiaTexto
 
         val paqueteTexto = when (paquete) {
-            4 -> "4 horas - $3150"
-            5 -> "5 horas - $3350"
-            6 -> "6 horas - $3550"
-            7 -> "7 horas - $3750"
-            8 -> "8 horas - $3950"
-            9 -> "9 horas - $4200"
-            10 -> "10 horas - $4750"
-            11 -> "11 horas - $5000"
-            12 -> "12 horas - $5300"
+            1 -> "4 horas - $3150"
+            2 -> "5 horas - $3350"
+            3 -> "6 horas - $3550"
+            4 -> "7 horas - $3750"
+            5 -> "8 horas - $3950"
+            6 -> "9 horas - $4200"
+            7 -> "10 horas - $4750"
+            8 -> "11 horas - $5000"
+            9 -> "12 horas - $5300"
             else -> "Desconocido"
         }
 

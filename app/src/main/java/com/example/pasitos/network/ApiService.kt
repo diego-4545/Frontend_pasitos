@@ -105,8 +105,16 @@ interface ApiService {
     @POST("pagos/registrar_salida/{nino_id}")
     fun registrarSalida(
         @Path("nino_id") ninoId: Int,
-        @Query("paquete") paquete: Int
+        @Query("paquete") paquete: Int,
+        @Query("horas_totales") horasTotales: Int
     ): Call<PagoResponse>
 
+
+    @GET("fechas/nino/{nino_id}/mes/{mes}/anio/{anio}")
+    fun obtenerFechasPorNinoMes(
+        @Path("nino_id") ninoId: Int,
+        @Path("mes") mes: Int,
+        @Path("anio") anio: Int
+    ): Call<List<FechaAbierta>>
 
 }

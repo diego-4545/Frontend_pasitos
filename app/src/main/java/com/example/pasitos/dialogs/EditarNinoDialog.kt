@@ -75,7 +75,7 @@ class EditarNinoDialog(
             }
         )
 
-        spinnerPaquete.setSelection(ninoActual.paquete - 4)
+        spinnerPaquete.setSelection((ninoActual.paquete - 1).coerceAtLeast(0))
 
         val dialog = AlertDialog.Builder(requireContext())
             .setView(view)
@@ -102,14 +102,14 @@ class EditarNinoDialog(
                 else -> 1
             }
 
-            val nuevasHoras = spinnerPaquete.selectedItemPosition + 4
+            val nuevoPaquete = spinnerPaquete.selectedItemPosition + 1
 
             val ninoActualizado = Nino(
                 id = ninoActual.id,
                 nombre = nuevoNombre,
                 padre_id = padreId,
                 sucursal = nuevaSucursal,
-                paquete = nuevasHoras
+                paquete = nuevoPaquete
             )
 
             onGuardarClick(ninoActualizado)
