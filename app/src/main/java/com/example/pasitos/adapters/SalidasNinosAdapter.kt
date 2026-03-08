@@ -130,7 +130,7 @@ class SalidasNinosAdapter(
                     if (response.isSuccessful) {
                         val excedioHoras = horasTotales > horasDePaquete(paquete)
                         val mensaje = if (excedioHoras) {
-                            "Salida registrada, se agregaron \$80 por hora extra"
+                            "Salida registrada, se agregaron \$80 por cada hora extra"
                         } else {
                             "Salida registrada correctamente"
                         }

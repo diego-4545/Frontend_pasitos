@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -7,5 +8,234 @@
     android:layout_height="match_parent"
     android:background="#9CD5FAFB"
     tools:context=".CitasActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="0dp"
+        android:layout_height="70dp"
+        android:background="@android:color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="380dp"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="16dp">
+
+            <ImageButton
+                android:id="@+id/casa"
+                android:layout_width="70dp"
+                android:layout_height="55dp"
+                android:layout_marginBottom="5dp"
+                android:background="@android:color/transparent"
+                android:scaleType="fitCenter"
+                android:src="@drawable/casa_sf"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/titulo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Citas"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/casa"
+                app:layout_constraintEnd_toStartOf="@id/salida"
+                app:layout_constraintStart_toEndOf="@id/casa"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageButton
+                android:id="@+id/salida"
+                android:layout_width="70dp"
+                android:layout_height="53dp"
+                android:layout_marginBottom="5dp"
+                android:background="@android:color/transparent"
+                android:scaleType="fitCenter"
+                android:src="@drawable/salida_sf"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.appcompat.widget.Toolbar>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_margin="16dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="6dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Botón agregar -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnVerTodas"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="40dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:text="Ver todas"
+                    android:textSize="14sp"
+                    android:layout_marginEnd="8dp"
+                    app:cornerRadius="10dp"
+                    app:backgroundTint="#78909C"/>
+
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAgregarCita"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="40dp"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:text="Agregar Cita"
+                    android:textSize="14sp"
+                    app:cornerRadius="10dp" />
+
+            </LinearLayout>
+
+            <!-- Encabezados lista -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="12dp"
+                android:paddingBottom="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:text="Fecha"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:text="Hora"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:text="Acciones"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <!-- ✅ Lista con altura fija y scroll propio -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerCitas"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+
+            <!-- Separador -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E0E0E0"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Calendario con tamaño fijo -->
+            <LinearLayout
+                android:id="@+id/layoutCalendario"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Navegación mes -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <Button
+                        android:id="@+id/btnMesAnterior"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:text="&lt;"
+                        android:padding="0dp"
+                        android:backgroundTint="#599B3D"/>
+
+                    <TextView
+                        android:id="@+id/txtMesAnio"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:text="Marzo 2026"/>
+
+                    <Button
+                        android:id="@+id/btnMesSiguiente"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:text="&gt;"
+                        android:padding="0dp"
+                        android:backgroundTint="#599B3D"/>
+
+                </LinearLayout>
+
+                <!-- Días de la semana -->
+                <GridLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:columnCount="7"
+                    android:layout_marginTop="4dp">
+
+                    <TextView android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center" android:text="Dom" android:textStyle="bold" android:textSize="12sp"/>
+                    <TextView android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center" android:text="Lun" android:textStyle="bold" android:textSize="12sp"/>
+                    <TextView android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center" android:text="Mar" android:textStyle="bold" android:textSize="12sp"/>
+                    <TextView android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center" android:text="Mié" android:textStyle="bold" android:textSize="12sp"/>
+                    <TextView android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center" android:text="Jue" android:textStyle="bold" android:textSize="12sp"/>
+                    <TextView android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center" android:text="Vie" android:textStyle="bold" android:textSize="12sp"/>
+                    <TextView android:layout_width="0dp" android:layout_columnWeight="1" android:gravity="center" android:text="Sáb" android:textStyle="bold" android:textSize="12sp"/>
+
+                </GridLayout>
+
+                <!-- Grid de días con altura fija -->
+                <GridLayout
+                    android:id="@+id/gridDias"
+                    android:layout_width="match_parent"
+                    android:layout_height="220dp"
+                    android:columnCount="7"
+                    android:layout_marginTop="4dp"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="12dp"
+    android:background="#FFFFFF"
+    android:layout_marginBottom="8dp"
+    android:elevation="2dp">
+
+    <!-- FECHA -->
+    <TextView
+        android:id="@+id/txtFechaCita"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:text="01/03/2026"
+        android:textSize="15sp" />
+
+    <!-- HORA -->
+    <TextView
+        android:id="@+id/txtHoraCita"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:text="10:00 AM"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <!-- BOTONES -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:orientation="vertical">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnInfoCita"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Info"
+            android:textSize="12sp"
+            android:minHeight="36dp"
+            android:backgroundTint="#2067EB"
+            app:cornerRadius="8dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEditarCita"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Editar"
+            android:textSize="12sp"
+            android:minHeight="36dp"
+            android:layout_marginTop="4dp"
+            android:backgroundTint="#599B3D"
+            app:cornerRadius="8dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEliminarCita"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Eliminar"
+            android:textSize="12sp"
+            android:minHeight="36dp"
+            android:layout_marginTop="4dp"
+            android:backgroundTint="#D32F2F"
+            android:textColor="#FFFFFF"
+            app:cornerRadius="8dp" />
+
+    </LinearLayout>
+
+</LinearLayout>
