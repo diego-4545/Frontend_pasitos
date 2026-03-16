@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Eliminar"
-            android:backgroundTint="#D32F2F"
+            android:backgroundTint="#599B3D"
             android:layout_marginStart="8dp"/>
 
     </LinearLayout>

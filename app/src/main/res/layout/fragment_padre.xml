@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -50,7 +49,6 @@
 
             </LinearLayout>
 
-            <!-- Encabezados -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -81,9 +79,22 @@
                     android:text="Acciones"
                     android:textStyle="bold"
                     android:textSize="16sp"/>
+
             </LinearLayout>
 
-            <!-- RecyclerView -->
+            <!-- ✅ Mensaje lista vacía -->
+            <TextView
+                android:id="@+id/txtSinPadres"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No hay padres registrados"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:textColor="#999999"
+                android:paddingTop="32dp"
+                android:paddingBottom="16dp"
+                android:visibility="gone"/>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerPadres"
                 android:layout_width="match_parent"

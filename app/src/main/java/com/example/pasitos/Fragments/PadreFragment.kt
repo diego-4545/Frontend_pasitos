@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.widget.SearchView
+import android.widget.TextView
 import android.widget.Toast
 import com.example.pasitos.R
 import com.example.pasitos.adapters.PadreAdapter
@@ -23,6 +24,7 @@ class PadreFragment : Fragment(R.layout.fragment_padre) {
 
     private var listaNinos = mutableListOf<Nino>()
     private lateinit var recycler: RecyclerView
+    private lateinit var txtSinPadres: TextView
     private lateinit var adapter: PadreAdapter
     private var listaPadres = mutableListOf<Padre>()
     private var listaPadresFiltrada = mutableListOf<Padre>()
@@ -31,18 +33,17 @@ class PadreFragment : Fragment(R.layout.fragment_padre) {
         super.onViewCreated(view, savedInstanceState)
 
         recycler = view.findViewById(R.id.recyclerPadres)
+        txtSinPadres = view.findViewById(R.id.txtSinPadres)
         recycler.layoutManager = LinearLayoutManager(requireContext())
 
-        val btnAgregar = view.findViewById<MaterialButton>(R.id.btnAgregarPadre)
-        btnAgregar.setOnClickListener {
+        view.findViewById<MaterialButton>(R.id.btnAgregarPadre).setOnClickListener {
             val dialog = AgregarPadreDialog { nombre, telefono ->
                 crearPadre(nombre, telefono)
             }
             dialog.show(parentFragmentManager, "AgregarPadre")
         }
 
-        val searchView = view.findViewById<SearchView>(R.id.searchNino)
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        view.findViewById<SearchView>(R.id.searchNino).setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?) = false
             override fun onQueryTextChange(newText: String?): Boolean {
                 filtrarPadres(newText)
@@ -51,6 +52,16 @@ class PadreFragment : Fragment(R.layout.fragment_padre) {
         })
 
         cargarNinos()
+    }
+
+    private fun actualizarMensaje() {
+        if (listaPadresFiltrada.isEmpty()) {
+            txtSinPadres.visibility = View.VISIBLE
+            recycler.visibility = View.GONE
+        } else {
+            txtSinPadres.visibility = View.GONE
+            recycler.visibility = View.VISIBLE
+        }
     }
 
     private fun cargarNinos() {
@@ -97,12 +108,11 @@ class PadreFragment : Fragment(R.layout.fragment_padre) {
                             }
                         },
                         { padre, nombreNuevo, telefonoNuevo ->
-                            padre.id?.let { id ->
-                                editarPadre(id, nombreNuevo, telefonoNuevo)
-                            }
+                            padre.id?.let { id -> editarPadre(id, nombreNuevo, telefonoNuevo) }
                         }
                     )
                     recycler.adapter = adapter
+                    actualizarMensaje()
                 }
             }
             override fun onFailure(call: Call<List<Padre>>, t: Throwable) {}
@@ -122,28 +132,32 @@ class PadreFragment : Fragment(R.layout.fragment_padre) {
                 }
             )
         }
-        adapter.notifyDataSetChanged()
+        if (::adapter.isInitialized) {
+            adapter.notifyDataSetChanged()
+            actualizarMensaje()
+        }
     }
 
     private fun crearPadre(nombre: String, telefono: String) {
         val padre = Padre(nombre = nombre, telefono = telefono)
         RetrofitClient.instance.crearPadre(padre).enqueue(object : Callback<Padre> {
             override fun onResponse(call: Call<Padre>, response: Response<Padre>) {
-                if (response.isSuccessful) cargarPadres()
-                if (response.isSuccessful) cargarNinos()
-                Toast.makeText(requireContext(), "Padre agregado correctamente", Toast.LENGTH_SHORT).show()
+                if (response.isSuccessful) {
+                    cargarNinos()
+                    Toast.makeText(requireContext(), "Padre agregado correctamente", Toast.LENGTH_SHORT).show()
+                }
             }
             override fun onFailure(call: Call<Padre>, t: Throwable) {}
         })
     }
 
     private fun eliminarPadre(id: Int) {
-
         RetrofitClient.instance.eliminarPadre(id).enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                if (response.isSuccessful) cargarPadres()
-                if (response.isSuccessful) cargarNinos()
-                Toast.makeText(requireContext(), "Padre eliminado correctamente", Toast.LENGTH_SHORT).show()
+                if (response.isSuccessful) {
+                    cargarNinos()
+                    Toast.makeText(requireContext(), "Padre eliminado correctamente", Toast.LENGTH_SHORT).show()
+                }
             }
             override fun onFailure(call: Call<Void>, t: Throwable) {}
         })
@@ -153,9 +167,10 @@ class PadreFragment : Fragment(R.layout.fragment_padre) {
         val padreActualizado = Padre(id = id, nombre = nombre, telefono = telefono)
         RetrofitClient.instance.editarPadre(id, padreActualizado).enqueue(object : Callback<Padre> {
             override fun onResponse(call: Call<Padre>, response: Response<Padre>) {
-                if (response.isSuccessful) cargarPadres()
-                if (response.isSuccessful) cargarNinos()
-                Toast.makeText(requireContext(), "Padre editado correctamente", Toast.LENGTH_SHORT).show()
+                if (response.isSuccessful) {
+                    cargarNinos()
+                    Toast.makeText(requireContext(), "Padre editado correctamente", Toast.LENGTH_SHORT).show()
+                }
             }
             override fun onFailure(call: Call<Padre>, t: Throwable) {}
         })

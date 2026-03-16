@@ -25,6 +25,7 @@ class CitasActivity : AppCompatActivity() {
     private lateinit var adapter: CitasAdapter
     private lateinit var gridDias: GridLayout
     private lateinit var txtMesAnio: TextView
+    private lateinit var txtSinCitas: TextView
     private val listaCitas = mutableListOf<Cita>()
     private val listaCitasFiltrada = mutableListOf<Cita>()
     private val listaPadres = listOf("Pedro Pérez", "Ana López", "Carlos García", "María Torres", "Juan Martínez")
@@ -65,10 +66,22 @@ class CitasActivity : AppCompatActivity() {
             Cita(1, "2026-03-07", "09:00", "Consulta general", "Pedro Pérez"),
             Cita(2, "2026-03-07", "10:30", "Revisión mensual", "Ana López"),
             Cita(3, "2026-03-08", "11:00", "Primera visita", "Carlos García"),
-            Cita(4, "2026-04-08", "12:00", "Seguimiento", "María Torres"),
-            Cita(5, "2026-05-10", "09:30", "Evaluación", "Juan Martínez"),
+            Cita(4, "2026-03-08", "12:00", "Seguimiento", "María Torres"),
+            Cita(5, "2026-03-11", "09:30", "Evaluación", "Juan Martínez"),
         ))
-        listaCitasFiltrada.addAll(listaCitas)
+
+        // ✅ Al entrar mostrar solo citas de hoy
+        val calHoy = Calendar.getInstance()
+        val fechaHoy = String.format(
+            "%04d-%02d-%02d",
+            calHoy.get(Calendar.YEAR),
+            calHoy.get(Calendar.MONTH) + 1,
+            calHoy.get(Calendar.DAY_OF_MONTH)
+        )
+        val citasHoy = listaCitas.filter { it.fecha == fechaHoy }
+        listaCitasFiltrada.addAll(citasHoy)
+
+        txtSinCitas = findViewById(R.id.txtSinCitas)
 
         recycler = findViewById(R.id.recyclerCitas)
         recycler.layoutManager = LinearLayoutManager(this)
@@ -79,6 +92,7 @@ class CitasActivity : AppCompatActivity() {
             onEliminar = { mostrarModalEliminar(it) }
         )
         recycler.adapter = adapter
+        actualizarMensajeSinCitas()
 
         gridDias = findViewById(R.id.gridDias)
         txtMesAnio = findViewById(R.id.txtMesAnio)
@@ -96,15 +110,25 @@ class CitasActivity : AppCompatActivity() {
 
         renderizarCalendario()
 
-        // ✅ Ver todas las citas
         findViewById<MaterialButton>(R.id.btnVerTodas).setOnClickListener {
             listaCitasFiltrada.clear()
             listaCitasFiltrada.addAll(listaCitas)
             adapter.notifyDataSetChanged()
+            actualizarMensajeSinCitas()
         }
 
         findViewById<MaterialButton>(R.id.btnAgregarCita).setOnClickListener {
             mostrarModalAgregar()
+        }
+    }
+
+    private fun actualizarMensajeSinCitas() {
+        if (listaCitasFiltrada.isEmpty()) {
+            txtSinCitas.visibility = TextView.VISIBLE
+            recycler.visibility = RecyclerView.GONE
+        } else {
+            txtSinCitas.visibility = TextView.GONE
+            recycler.visibility = RecyclerView.VISIBLE
         }
     }
 
@@ -166,18 +190,9 @@ class CitasActivity : AppCompatActivity() {
                 val drawable = android.graphics.drawable.GradientDrawable().apply {
                     shape = android.graphics.drawable.GradientDrawable.OVAL
                     when {
-                        esHoy && tieneCita -> {
-                            // ✅ Hoy con citas -> verde claro
-                            setColor(Color.parseColor("#81C784"))
-                        }
-                        esHoy -> {
-                            // ✅ Hoy sin citas -> azul claro
-                            setColor(Color.parseColor("#4FC3F7"))
-                        }
-                        tieneCita -> {
-                            // ✅ Con citas -> verde
-                            setColor(Color.parseColor("#599B3D"))
-                        }
+                        esHoy && tieneCita -> setColor(Color.parseColor("#81C784"))
+                        esHoy -> setColor(Color.parseColor("#4FC3F7"))
+                        tieneCita -> setColor(Color.parseColor("#599B3D"))
                         else -> setColor(Color.TRANSPARENT)
                     }
                 }
@@ -197,10 +212,10 @@ class CitasActivity : AppCompatActivity() {
                     if (citasDelDia.isEmpty()) {
                         listaCitasFiltrada.addAll(listaCitas)
                     } else {
-                        // ✅ Solo filtrar, nunca abrir modal automáticamente
                         listaCitasFiltrada.addAll(citasDelDia)
                     }
                     adapter.notifyDataSetChanged()
+                    actualizarMensajeSinCitas()
                 }
             }
 
@@ -282,6 +297,7 @@ class CitasActivity : AppCompatActivity() {
             listaCitas.add(nuevaCita)
             listaCitasFiltrada.add(nuevaCita)
             adapter.notifyDataSetChanged()
+            actualizarMensajeSinCitas()
             renderizarCalendario()
             Toast.makeText(this, "Cita agregada", Toast.LENGTH_SHORT).show()
             dialog.dismiss()
@@ -326,6 +342,7 @@ class CitasActivity : AppCompatActivity() {
             if (indexFiltrada != -1) listaCitasFiltrada[indexFiltrada] = citaEditada
 
             adapter.notifyDataSetChanged()
+            actualizarMensajeSinCitas()
             renderizarCalendario()
             Toast.makeText(this, "Cita actualizada", Toast.LENGTH_SHORT).show()
             dialog.dismiss()
@@ -344,6 +361,7 @@ class CitasActivity : AppCompatActivity() {
             listaCitas.removeAll { it.id == cita.id }
             listaCitasFiltrada.removeAll { it.id == cita.id }
             adapter.notifyDataSetChanged()
+            actualizarMensajeSinCitas()
             renderizarCalendario()
             Toast.makeText(this, "Cita eliminada", Toast.LENGTH_SHORT).show()
             dialog.dismiss()

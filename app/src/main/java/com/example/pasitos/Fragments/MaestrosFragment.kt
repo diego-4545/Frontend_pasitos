@@ -3,6 +3,7 @@ package com.example.pasitos.Fragments
 import android.os.Bundle
 import android.view.View
 import android.widget.SearchView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,6 +21,7 @@ import retrofit2.Response
 class MaestrosFragment : Fragment(R.layout.fragment_maestro) {
 
     private lateinit var recycler: RecyclerView
+    private lateinit var txtSinMaestros: TextView
     private lateinit var adapter: MaestroAdapter
     private var listaMaestros = mutableListOf<Maestro>()
     private var listaMaestrosFiltrada = mutableListOf<Maestro>()
@@ -28,6 +30,7 @@ class MaestrosFragment : Fragment(R.layout.fragment_maestro) {
         super.onViewCreated(view, savedInstanceState)
 
         recycler = view.findViewById(R.id.recyclerMaestros)
+        txtSinMaestros = view.findViewById(R.id.txtSinMaestros)
         recycler.layoutManager = LinearLayoutManager(requireContext())
 
         adapter = MaestroAdapter(listaMaestrosFiltrada) { refrescarLista() }
@@ -35,22 +38,28 @@ class MaestrosFragment : Fragment(R.layout.fragment_maestro) {
 
         cargarMaestros()
 
-        val btnAgregar = view.findViewById<MaterialButton>(R.id.btnAgregarMaestro)
-        btnAgregar.setOnClickListener {
-            val dialog = AgregarMaestroDialog { nuevoMaestro ->
-                crearMaestro(nuevoMaestro)
-            }
+        view.findViewById<MaterialButton>(R.id.btnAgregarMaestro).setOnClickListener {
+            val dialog = AgregarMaestroDialog { nuevoMaestro -> crearMaestro(nuevoMaestro) }
             dialog.show(parentFragmentManager, "AgregarMaestro")
         }
 
-        val searchView = view.findViewById<SearchView>(R.id.searchMaestro)
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        view.findViewById<SearchView>(R.id.searchMaestro).setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?) = false
             override fun onQueryTextChange(newText: String?): Boolean {
                 filtrarMaestros(newText)
                 return true
             }
         })
+    }
+
+    private fun actualizarMensaje() {
+        if (listaMaestrosFiltrada.isEmpty()) {
+            txtSinMaestros.visibility = View.VISIBLE
+            recycler.visibility = View.GONE
+        } else {
+            txtSinMaestros.visibility = View.GONE
+            recycler.visibility = View.VISIBLE
+        }
     }
 
     private fun cargarMaestros() {
@@ -62,9 +71,9 @@ class MaestrosFragment : Fragment(R.layout.fragment_maestro) {
                     listaMaestrosFiltrada.clear()
                     listaMaestrosFiltrada.addAll(listaMaestros)
                     adapter.notifyDataSetChanged()
+                    actualizarMensaje()
                 }
             }
-
             override fun onFailure(call: Call<List<Maestro>>, t: Throwable) {
                 Toast.makeText(requireContext(), "Error al cargar maestros", Toast.LENGTH_SHORT).show()
             }
@@ -81,7 +90,6 @@ class MaestrosFragment : Fragment(R.layout.fragment_maestro) {
                     Toast.makeText(requireContext(), "Error al agregar maestro", Toast.LENGTH_SHORT).show()
                 }
             }
-
             override fun onFailure(call: Call<Maestro>, t: Throwable) {
                 Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show()
             }
@@ -99,9 +107,8 @@ class MaestrosFragment : Fragment(R.layout.fragment_maestro) {
             )
         }
         adapter.notifyDataSetChanged()
+        actualizarMensaje()
     }
 
-    private fun refrescarLista() {
-        cargarMaestros()
-    }
+    private fun refrescarLista() { cargarMaestros() }
 }

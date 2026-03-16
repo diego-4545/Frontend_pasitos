@@ -3,6 +3,7 @@ package com.example.pasitos.Fragments
 import android.os.Bundle
 import android.view.View
 import android.widget.SearchView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,6 +24,7 @@ import retrofit2.Response
 class NinoFragment : Fragment(R.layout.fragment_nino) {
 
     private lateinit var recycler: RecyclerView
+    private lateinit var txtSinNinos: TextView
     private lateinit var adapter: NinoAdapter
     private var listaNinos = mutableListOf<Nino>()
     private var listaPadres = listOf<Padre>()
@@ -32,12 +34,12 @@ class NinoFragment : Fragment(R.layout.fragment_nino) {
         super.onViewCreated(view, savedInstanceState)
 
         recycler = view.findViewById(R.id.recyclerNino)
+        txtSinNinos = view.findViewById(R.id.txtSinNinos)
         recycler.layoutManager = LinearLayoutManager(requireContext())
 
         cargarPadres()
 
-        val btnAgregar = view.findViewById<MaterialButton>(R.id.btnAgregar)
-        btnAgregar.setOnClickListener {
+        view.findViewById<MaterialButton>(R.id.btnAgregar).setOnClickListener {
             RetrofitClient.instance.obtenerPadres().enqueue(object : Callback<List<Padre>> {
                 override fun onResponse(call: Call<List<Padre>>, response: Response<List<Padre>>) {
                     if (response.isSuccessful && response.body() != null) {
@@ -71,9 +73,7 @@ class NinoFragment : Fragment(R.layout.fragment_nino) {
                                 paquete = paqueteHoras
                             )
 
-                            crearNino(nuevoNino) {
-                                cargarPadres()
-                            }
+                            crearNino(nuevoNino) { cargarPadres() }
                         }
 
                         dialog.show(parentFragmentManager, "AgregarNino")
@@ -85,14 +85,24 @@ class NinoFragment : Fragment(R.layout.fragment_nino) {
                 }
             })
         }
-        val searchView = view.findViewById<SearchView>(R.id.searchNino)
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+
+        view.findViewById<SearchView>(R.id.searchNino).setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?) = false
             override fun onQueryTextChange(newText: String?): Boolean {
                 filtrarNinos(newText)
                 return true
             }
         })
+    }
+
+    private fun actualizarMensaje() {
+        if (listaNinosFiltrada.isEmpty()) {
+            txtSinNinos.visibility = View.VISIBLE
+            recycler.visibility = View.GONE
+        } else {
+            txtSinNinos.visibility = View.GONE
+            recycler.visibility = View.VISIBLE
+        }
     }
 
     private fun cargarPadres() {
@@ -103,7 +113,6 @@ class NinoFragment : Fragment(R.layout.fragment_nino) {
                     cargarNinos()
                 }
             }
-
             override fun onFailure(call: Call<List<Padre>>, t: Throwable) {
                 Toast.makeText(requireContext(), "Error al cargar padres", Toast.LENGTH_SHORT).show()
             }
@@ -124,14 +133,10 @@ class NinoFragment : Fragment(R.layout.fragment_nino) {
                         listaNinosFiltrada,
                         listaPadres,
                         onEliminar = { nino ->
-                            val dialog = EliminarNinoDialog(nino.nombre) {
-                                eliminarNino(nino)
-                            }
+                            val dialog = EliminarNinoDialog(nino.nombre) { eliminarNino(nino) }
                             dialog.show(parentFragmentManager, "EliminarNino")
                         },
-                        onEditar = { nino ->
-                            editarNino(nino)
-                        },
+                        onEditar = { nino -> editarNino(nino) },
                         onInfo = { nino ->
                             val nombrePadre = listaPadres.find { it.id == nino.padre_id }?.nombre ?: "Desconocido"
                             val dialog = InfoNinoDialog(
@@ -149,9 +154,9 @@ class NinoFragment : Fragment(R.layout.fragment_nino) {
 
                     recycler.adapter = adapter
                     adapter.notifyDataSetChanged()
+                    actualizarMensaje()
                 }
             }
-
             override fun onFailure(call: Call<List<Nino>>, t: Throwable) {
                 Toast.makeText(requireContext(), "Error al cargar niños", Toast.LENGTH_SHORT).show()
             }
@@ -172,7 +177,10 @@ class NinoFragment : Fragment(R.layout.fragment_nino) {
                 }
             )
         }
-        adapter.notifyDataSetChanged()
+        if (::adapter.isInitialized) {
+            adapter.notifyDataSetChanged()
+            actualizarMensaje()
+        }
     }
 
     private fun editarNino(ninoActualizado: Nino) {
@@ -186,7 +194,6 @@ class NinoFragment : Fragment(R.layout.fragment_nino) {
                         Toast.makeText(requireContext(), "Error al editar niño", Toast.LENGTH_SHORT).show()
                     }
                 }
-
                 override fun onFailure(call: Call<Nino>, t: Throwable) {
                     Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show()
                 }
@@ -203,7 +210,6 @@ class NinoFragment : Fragment(R.layout.fragment_nino) {
                     Toast.makeText(requireContext(), "Error al agregar niño", Toast.LENGTH_SHORT).show()
                 }
             }
-
             override fun onFailure(call: Call<Nino>, t: Throwable) {
                 Toast.makeText(requireContext(), "Error de conexión", Toast.LENGTH_SHORT).show()
             }
@@ -221,7 +227,6 @@ class NinoFragment : Fragment(R.layout.fragment_nino) {
                         Toast.makeText(requireContext(), "Error al eliminar niño", Toast.LENGTH_SHORT).show()
                     }
                 }
-
                 override fun onFailure(call: Call<Void>, t: Throwable) {
                     Toast.makeText(requireContext(), "Error de conexión al eliminar niño", Toast.LENGTH_SHORT).show()
                 }

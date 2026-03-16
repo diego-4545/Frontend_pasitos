@@ -82,7 +82,7 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Botón agregar -->
+            <!-- Botones -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -101,7 +101,6 @@
                     android:layout_marginEnd="8dp"
                     app:cornerRadius="10dp"
                     app:backgroundTint="#78909C"/>
-
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAgregarCita"
@@ -150,14 +149,24 @@
 
             </LinearLayout>
 
-            <!-- ✅ Lista con altura fija y scroll propio -->
+            <!-- Mensaje sin citas -->
+            <TextView
+                android:id="@+id/txtSinCitas"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No hay citas programadas para el día de hoy"
+                android:gravity="center"
+                android:textSize="14sp"
+                android:textColor="#999999"
+                android:paddingTop="16dp"
+                android:paddingBottom="123dp"
+                android:visibility="gone"/>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerCitas"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"/>
+                android:layout_height="160dp"/>
 
-            <!-- Separador -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -165,14 +174,12 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"/>
 
-            <!-- Calendario con tamaño fijo -->
             <LinearLayout
                 android:id="@+id/layoutCalendario"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!-- Navegación mes -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -207,7 +214,6 @@
 
                 </LinearLayout>
 
-                <!-- Días de la semana -->
                 <GridLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -224,7 +230,6 @@
 
                 </GridLayout>
 
-                <!-- Grid de días con altura fija -->
                 <GridLayout
                     android:id="@+id/gridDias"
                     android:layout_width="match_parent"
