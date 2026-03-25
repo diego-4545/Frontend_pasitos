@@ -16,7 +16,15 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.pasitos.network.RetrofitClient
+import com.example.pasitos.schemas.Cita
+import com.example.pasitos.schemas.CitaRequest
+import com.example.pasitos.schemas.CitaResponse
+import com.example.pasitos.schemas.Padre
 import com.google.android.material.button.MaterialButton
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.util.Calendar
 
 class CitasActivity : AppCompatActivity() {
@@ -26,9 +34,10 @@ class CitasActivity : AppCompatActivity() {
     private lateinit var gridDias: GridLayout
     private lateinit var txtMesAnio: TextView
     private lateinit var txtSinCitas: TextView
+
     private val listaCitas = mutableListOf<Cita>()
     private val listaCitasFiltrada = mutableListOf<Cita>()
-    private val listaPadres = listOf("Pedro Pérez", "Ana López", "Carlos García", "María Torres", "Juan Martínez")
+    private var listaPadres = listOf<Padre>()
 
     private var mesActual = Calendar.getInstance().get(Calendar.MONTH)
     private var anioActual = Calendar.getInstance().get(Calendar.YEAR)
@@ -46,13 +55,11 @@ class CitasActivity : AppCompatActivity() {
 
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
-        val screenWidth = displayMetrics.widthPixels
-        val screenHeight = displayMetrics.heightPixels
         val density = resources.displayMetrics.density
         val maxWidth = (500 * density).toInt()
         val maxHeight = (725 * density).toInt()
-        val finalWidth = if (screenWidth > maxWidth) maxWidth else screenWidth
-        val finalHeight = if (screenHeight > maxHeight) maxHeight else screenHeight
+        val finalWidth = if (displayMetrics.widthPixels > maxWidth) maxWidth else displayMetrics.widthPixels
+        val finalHeight = if (displayMetrics.heightPixels > maxHeight) maxHeight else displayMetrics.heightPixels
         window.setLayout(finalWidth, finalHeight)
 
         findViewById<ImageButton>(R.id.salida).setOnClickListener {
@@ -62,27 +69,7 @@ class CitasActivity : AppCompatActivity() {
             startActivity(Intent(this, AdminActivity::class.java))
         }
 
-        listaCitas.addAll(listOf(
-            Cita(1, "2026-03-07", "09:00", "Consulta general", "Pedro Pérez"),
-            Cita(2, "2026-03-07", "10:30", "Revisión mensual", "Ana López"),
-            Cita(3, "2026-03-08", "11:00", "Primera visita", "Carlos García"),
-            Cita(4, "2026-03-08", "12:00", "Seguimiento", "María Torres"),
-            Cita(5, "2026-03-11", "09:30", "Evaluación", "Juan Martínez"),
-        ))
-
-        // ✅ Al entrar mostrar solo citas de hoy
-        val calHoy = Calendar.getInstance()
-        val fechaHoy = String.format(
-            "%04d-%02d-%02d",
-            calHoy.get(Calendar.YEAR),
-            calHoy.get(Calendar.MONTH) + 1,
-            calHoy.get(Calendar.DAY_OF_MONTH)
-        )
-        val citasHoy = listaCitas.filter { it.fecha == fechaHoy }
-        listaCitasFiltrada.addAll(citasHoy)
-
         txtSinCitas = findViewById(R.id.txtSinCitas)
-
         recycler = findViewById(R.id.recyclerCitas)
         recycler.layoutManager = LinearLayoutManager(this)
         adapter = CitasAdapter(
@@ -92,7 +79,6 @@ class CitasActivity : AppCompatActivity() {
             onEliminar = { mostrarModalEliminar(it) }
         )
         recycler.adapter = adapter
-        actualizarMensajeSinCitas()
 
         gridDias = findViewById(R.id.gridDias)
         txtMesAnio = findViewById(R.id.txtMesAnio)
@@ -108,8 +94,6 @@ class CitasActivity : AppCompatActivity() {
             renderizarCalendario()
         }
 
-        renderizarCalendario()
-
         findViewById<MaterialButton>(R.id.btnVerTodas).setOnClickListener {
             listaCitasFiltrada.clear()
             listaCitasFiltrada.addAll(listaCitas)
@@ -120,7 +104,88 @@ class CitasActivity : AppCompatActivity() {
         findViewById<MaterialButton>(R.id.btnAgregarCita).setOnClickListener {
             mostrarModalAgregar()
         }
+
+        cargarPadres()
     }
+
+
+    private fun cargarPadres() {
+        RetrofitClient.instance.obtenerPadres().enqueue(object : Callback<List<Padre>> {
+            override fun onResponse(call: Call<List<Padre>>, response: Response<List<Padre>>) {
+                if (response.isSuccessful && response.body() != null) {
+                    listaPadres = response.body()!!
+                }
+                cargarCitas()
+            }
+            override fun onFailure(call: Call<List<Padre>>, t: Throwable) {
+                cargarCitas()
+            }
+        })
+    }
+
+    private fun cargarCitas() {
+        RetrofitClient.instance.obtenerCitas().enqueue(object : Callback<List<CitaResponse>> {
+            override fun onResponse(call: Call<List<CitaResponse>>, response: Response<List<CitaResponse>>) {
+                if (response.isSuccessful && response.body() != null) {
+                    listaCitas.clear()
+                    listaCitas.addAll(response.body()!!.map { citaResponseToCita(it) })
+
+                    val calHoy = Calendar.getInstance()
+                    val fechaHoy = String.format(
+                        "%04d-%02d-%02d",
+                        calHoy.get(Calendar.YEAR),
+                        calHoy.get(Calendar.MONTH) + 1,
+                        calHoy.get(Calendar.DAY_OF_MONTH)
+                    )
+                    listaCitasFiltrada.clear()
+                    listaCitasFiltrada.addAll(listaCitas.filter { it.fecha == fechaHoy })
+                    adapter.notifyDataSetChanged()
+                    actualizarMensajeSinCitas()
+                    renderizarCalendario()
+                } else {
+                    Toast.makeText(this@CitasActivity, "Error al cargar citas", Toast.LENGTH_SHORT).show()
+                }
+            }
+            override fun onFailure(call: Call<List<CitaResponse>>, t: Throwable) {
+                Toast.makeText(this@CitasActivity, "Error de conexión", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun citaResponseToCita(r: CitaResponse): Cita {
+        val nombrePadre = listaPadres.find { it.id == r.padre_id }?.nombre ?: "Padre desconocido"
+        return Cita(
+            id = r.id,
+            fecha = r.fecha,
+            hora = r.hora.substring(0, 5),
+            descripcion = r.descripcion,
+            padreNombre = nombrePadre
+        )
+    }
+
+
+    private fun fechaHoraEsValida(fecha: String, hora: String): Boolean {
+        return try {
+            val ahora = Calendar.getInstance()
+            val partes = fecha.split("-")
+            val horaPartes = hora.split(":")
+
+            val citaCal = Calendar.getInstance().apply {
+                set(Calendar.YEAR, partes[0].toInt())
+                set(Calendar.MONTH, partes[1].toInt() - 1)
+                set(Calendar.DAY_OF_MONTH, partes[2].toInt())
+                set(Calendar.HOUR_OF_DAY, horaPartes[0].toInt())
+                set(Calendar.MINUTE, horaPartes[1].toInt())
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+
+            citaCal.after(ahora)
+        } catch (e: Exception) {
+            false
+        }
+    }
+
 
     private fun actualizarMensajeSinCitas() {
         if (listaCitasFiltrada.isEmpty()) {
@@ -156,13 +221,12 @@ class CitasActivity : AppCompatActivity() {
 
         for (i in 0 until primerDia) {
             val vacio = TextView(this)
-            val params = GridLayout.LayoutParams().apply {
+            vacio.layoutParams = GridLayout.LayoutParams().apply {
                 width = 0
                 height = GridLayout.LayoutParams.WRAP_CONTENT
                 columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
                 rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
             }
-            vacio.layoutParams = params
             gridDias.addView(vacio)
         }
 
@@ -171,14 +235,13 @@ class CitasActivity : AppCompatActivity() {
             val esHoy = dia == diaHoy && mesActual == mesHoy && anioActual == anioHoy
 
             val container = FrameLayout(this).apply {
-                val params = GridLayout.LayoutParams().apply {
+                layoutParams = GridLayout.LayoutParams().apply {
                     width = 0
                     height = GridLayout.LayoutParams.WRAP_CONTENT
                     columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
                     rowSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
                     setMargins(4, 4, 4, 4)
                 }
-                layoutParams = params
             }
 
             val circulo = TextView(this).apply {
@@ -186,8 +249,7 @@ class CitasActivity : AppCompatActivity() {
                 gravity = Gravity.CENTER
                 textSize = 12f
                 setPadding(0, 16, 0, 16)
-
-                val drawable = android.graphics.drawable.GradientDrawable().apply {
+                background = android.graphics.drawable.GradientDrawable().apply {
                     shape = android.graphics.drawable.GradientDrawable.OVAL
                     when {
                         esHoy && tieneCita -> setColor(Color.parseColor("#81C784"))
@@ -196,34 +258,27 @@ class CitasActivity : AppCompatActivity() {
                         else -> setColor(Color.TRANSPARENT)
                     }
                 }
-                background = drawable
-
                 if (esHoy || tieneCita) {
                     setTextColor(Color.WHITE)
                     setTypeface(null, Typeface.BOLD)
                 } else {
                     setTextColor(Color.parseColor("#333333"))
                 }
-
                 setOnClickListener {
                     val fecha = String.format("%04d-%02d-%02d", anioActual, mesActual + 1, dia)
                     val citasDelDia = listaCitas.filter { it.fecha == fecha }
                     listaCitasFiltrada.clear()
-                    if (citasDelDia.isEmpty()) {
-                        listaCitasFiltrada.addAll(listaCitas)
-                    } else {
-                        listaCitasFiltrada.addAll(citasDelDia)
-                    }
+                    listaCitasFiltrada.addAll(if (citasDelDia.isEmpty()) listaCitas else citasDelDia)
                     adapter.notifyDataSetChanged()
                     actualizarMensajeSinCitas()
                 }
             }
 
-            val circleParams = FrameLayout.LayoutParams(
+            circulo.layoutParams = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT
             ).apply { gravity = Gravity.CENTER }
-            circulo.layoutParams = circleParams
+
             container.addView(circulo)
             gridDias.addView(container)
         }
@@ -244,7 +299,9 @@ class CitasActivity : AppCompatActivity() {
     }
 
     private fun configurarSpinnerPadres(spinner: Spinner, seleccionado: String? = null) {
-        val opciones = mutableListOf("Seleccionar padre...").apply { addAll(listaPadres) }
+        val opciones = mutableListOf("Seleccionar padre...").apply {
+            addAll(listaPadres.map { it.nombre })
+        }
         val adapterSpinner = ArrayAdapter(this, android.R.layout.simple_spinner_item, opciones)
         adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = adapterSpinner
@@ -253,6 +310,7 @@ class CitasActivity : AppCompatActivity() {
             if (index >= 0) spinner.setSelection(index)
         }
     }
+
 
     private fun mostrarModalInfo(cita: Cita) {
         val view = LayoutInflater.from(this).inflate(R.layout.dialog_info_cita, null)
@@ -281,26 +339,46 @@ class CitasActivity : AppCompatActivity() {
             val fecha = btnFecha.text.toString()
             val hora = btnHora.text.toString()
             val descripcion = etDescripcion.text.toString()
-            val padre = spPadre.selectedItem.toString()
+            val nombrePadre = spPadre.selectedItem.toString()
 
             if (fecha == "Seleccionar fecha" || hora == "Seleccionar hora" ||
-                descripcion.isBlank() || padre == "Seleccionar padre...") {
+                descripcion.isBlank() || nombrePadre == "Seleccionar padre...") {
                 Toast.makeText(this, "Completa todos los campos", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            val nuevaCita = Cita(
-                id = listaCitas.size + 1,
-                fecha = fecha, hora = hora,
-                descripcion = descripcion, padreNombre = padre
+            if (!fechaHoraEsValida(fecha, hora)) {
+                Toast.makeText(this, "La fecha y hora deben ser posteriores al momento actual", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val padreId = listaPadres.find { it.nombre == nombrePadre }?.id
+            if (padreId == null) {
+                Toast.makeText(this, "Padre no encontrado", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val request = CitaRequest(
+                padre_id = padreId,
+                fecha = fecha,
+                hora = "$hora:00",
+                descripcion = descripcion
             )
-            listaCitas.add(nuevaCita)
-            listaCitasFiltrada.add(nuevaCita)
-            adapter.notifyDataSetChanged()
-            actualizarMensajeSinCitas()
-            renderizarCalendario()
-            Toast.makeText(this, "Cita agregada", Toast.LENGTH_SHORT).show()
-            dialog.dismiss()
+
+            RetrofitClient.instance.crearCita(request).enqueue(object : Callback<CitaResponse> {
+                override fun onResponse(call: Call<CitaResponse>, response: Response<CitaResponse>) {
+                    if (response.isSuccessful) {
+                        Toast.makeText(this@CitasActivity, "Cita agregada", Toast.LENGTH_SHORT).show()
+                        cargarCitas()
+                        dialog.dismiss()
+                    } else {
+                        Toast.makeText(this@CitasActivity, "Error al agregar cita", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                override fun onFailure(call: Call<CitaResponse>, t: Throwable) {
+                    Toast.makeText(this@CitasActivity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                }
+            })
         }
         dialog.show()
     }
@@ -325,27 +403,45 @@ class CitasActivity : AppCompatActivity() {
             val fecha = btnFecha.text.toString()
             val hora = btnHora.text.toString()
             val descripcion = etDescripcion.text.toString()
-            val padre = spPadre.selectedItem.toString()
+            val nombrePadre = spPadre.selectedItem.toString()
 
-            if (descripcion.isBlank() || padre == "Seleccionar padre...") {
+            if (descripcion.isBlank() || nombrePadre == "Seleccionar padre...") {
                 Toast.makeText(this, "Completa todos los campos", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            val citaEditada = cita.copy(
-                fecha = fecha, hora = hora,
-                descripcion = descripcion, padreNombre = padre
-            )
-            val index = listaCitas.indexOfFirst { it.id == cita.id }
-            val indexFiltrada = listaCitasFiltrada.indexOfFirst { it.id == cita.id }
-            if (index != -1) listaCitas[index] = citaEditada
-            if (indexFiltrada != -1) listaCitasFiltrada[indexFiltrada] = citaEditada
+            if (!fechaHoraEsValida(fecha, hora)) {
+                Toast.makeText(this, "La fecha y hora deben ser posteriores al momento actual", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
-            adapter.notifyDataSetChanged()
-            actualizarMensajeSinCitas()
-            renderizarCalendario()
-            Toast.makeText(this, "Cita actualizada", Toast.LENGTH_SHORT).show()
-            dialog.dismiss()
+            val padreId = listaPadres.find { it.nombre == nombrePadre }?.id
+            if (padreId == null) {
+                Toast.makeText(this, "Padre no encontrado", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val request = CitaRequest(
+                padre_id = padreId,
+                fecha = fecha,
+                hora = if (hora.length == 5) "$hora:00" else hora,
+                descripcion = descripcion
+            )
+
+            RetrofitClient.instance.editarCita(cita.id, request).enqueue(object : Callback<CitaResponse> {
+                override fun onResponse(call: Call<CitaResponse>, response: Response<CitaResponse>) {
+                    if (response.isSuccessful) {
+                        Toast.makeText(this@CitasActivity, "Cita actualizada", Toast.LENGTH_SHORT).show()
+                        cargarCitas()
+                        dialog.dismiss()
+                    } else {
+                        Toast.makeText(this@CitasActivity, "Error al editar cita", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                override fun onFailure(call: Call<CitaResponse>, t: Throwable) {
+                    Toast.makeText(this@CitasActivity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                }
+            })
         }
         dialog.show()
     }
@@ -358,13 +454,20 @@ class CitasActivity : AppCompatActivity() {
         val dialog = AlertDialog.Builder(this).setView(view).create()
         view.findViewById<Button>(R.id.btnCancelarCita).setOnClickListener { dialog.dismiss() }
         view.findViewById<Button>(R.id.btnConfirmarEliminarCita).setOnClickListener {
-            listaCitas.removeAll { it.id == cita.id }
-            listaCitasFiltrada.removeAll { it.id == cita.id }
-            adapter.notifyDataSetChanged()
-            actualizarMensajeSinCitas()
-            renderizarCalendario()
-            Toast.makeText(this, "Cita eliminada", Toast.LENGTH_SHORT).show()
-            dialog.dismiss()
+            RetrofitClient.instance.eliminarCita(cita.id).enqueue(object : Callback<Void> {
+                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                    if (response.isSuccessful) {
+                        Toast.makeText(this@CitasActivity, "Cita eliminada", Toast.LENGTH_SHORT).show()
+                        cargarCitas()
+                        dialog.dismiss()
+                    } else {
+                        Toast.makeText(this@CitasActivity, "Error al eliminar cita", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                override fun onFailure(call: Call<Void>, t: Throwable) {
+                    Toast.makeText(this@CitasActivity, "Error de conexión", Toast.LENGTH_SHORT).show()
+                }
+            })
         }
         dialog.show()
     }

@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.pasitos.schemas.Cita
 import com.google.android.material.button.MaterialButton
 
 class CitasAdapter(
@@ -23,8 +24,7 @@ class CitasAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_cita, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_cita, parent, false)
         return ViewHolder(view)
     }
 

@@ -9,7 +9,9 @@ import com.example.pasitos.schemas.FechaUpdate
 import com.example.pasitos.schemas.PagoCreate
 import com.example.pasitos.schemas.PagoResponse
 import com.example.pasitos.schemas.PagoUpdate
-
+import com.example.pasitos.schemas.Cita
+import com.example.pasitos.schemas.CitaRequest
+import com.example.pasitos.schemas.CitaResponse
 
 
 
@@ -116,5 +118,17 @@ interface ApiService {
         @Path("mes") mes: Int,
         @Path("anio") anio: Int
     ): Call<List<FechaAbierta>>
+
+    @GET("agenda/")
+    fun obtenerCitas(): Call<List<CitaResponse>>
+
+    @POST("agenda/")
+    fun crearCita(@Body cita: CitaRequest): Call<CitaResponse>
+
+    @PUT("agenda/{cita_id}")
+    fun editarCita(@Path("cita_id") citaId: Int, @Body cita: CitaRequest): Call<CitaResponse>
+
+    @DELETE("agenda/{cita_id}")
+    fun eliminarCita(@Path("cita_id") citaId: Int): Call<Void>
 
 }
