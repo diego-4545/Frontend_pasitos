@@ -43,7 +43,7 @@ class PadreFragment : Fragment(R.layout.fragment_padre) {
             dialog.show(parentFragmentManager, "AgregarPadre")
         }
 
-        view.findViewById<SearchView>(R.id.searchNino).setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        view.findViewById<SearchView>(R.id.searchPadrePagos).setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?) = false
             override fun onQueryTextChange(newText: String?): Boolean {
                 filtrarPadres(newText)

@@ -33,7 +33,7 @@ class NinoFragment : Fragment(R.layout.fragment_nino) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recycler = view.findViewById(R.id.recyclerNino)
+        recycler = view.findViewById(R.id.recyclerPadres)
         txtSinNinos = view.findViewById(R.id.txtSinNinos)
         recycler.layoutManager = LinearLayoutManager(requireContext())
 
@@ -86,7 +86,7 @@ class NinoFragment : Fragment(R.layout.fragment_nino) {
             })
         }
 
-        view.findViewById<SearchView>(R.id.searchNino).setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        view.findViewById<SearchView>(R.id.searchPadrePagos).setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?) = false
             override fun onQueryTextChange(newText: String?): Boolean {
                 filtrarNinos(newText)

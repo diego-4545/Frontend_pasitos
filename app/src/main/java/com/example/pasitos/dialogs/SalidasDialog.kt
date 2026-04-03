@@ -23,7 +23,7 @@ class SalidasDialog(
 
         val txtTitulo = view.findViewById<TextView>(R.id.txtPregunta)
         val btnCancelar = view.findViewById<Button>(R.id.button)
-        val btnConfirmar = view.findViewById<Button>(R.id.button2)
+        val btnConfirmar = view.findViewById<Button>(R.id.btnConfirmar)
 
         txtTitulo.text = "¿Quieres confirmar la salida de $nombreNino?"
 
