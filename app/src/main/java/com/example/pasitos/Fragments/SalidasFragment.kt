@@ -65,7 +65,8 @@ class SalidasFragment : Fragment() {
     }
 
     private fun cargarFechasAbiertas() {
-        val sucursalId = 1
+        val prefs = requireContext().getSharedPreferences("pasitos_prefs", android.content.Context.MODE_PRIVATE)
+        val sucursalId = prefs.getInt("sucursal_id", 1)
         RetrofitClient.instance.obtenerFechasAbiertas(sucursalId)
             .enqueue(object : Callback<List<FechaAbierta>> {
                 override fun onResponse(call: Call<List<FechaAbierta>>, response: Response<List<FechaAbierta>>) {

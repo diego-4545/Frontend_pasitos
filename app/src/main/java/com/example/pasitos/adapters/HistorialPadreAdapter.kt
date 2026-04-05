@@ -7,14 +7,13 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.pasitos.Fragments.PagosFragment.NinoConPago
-import com.example.pasitos.Fragments.PagosFragment.PadreConNinos
+import com.example.pasitos.Fragments.HistorialFragment.NinoConPago
+import com.example.pasitos.Fragments.HistorialFragment.PadreConNinos
 import com.example.pasitos.R
 
-class PagosPadreAdapter(
-    private var lista: MutableList<PadreConNinos>,
-    private val onRefresh: () -> Unit
-) : RecyclerView.Adapter<PagosPadreAdapter.PadreViewHolder>() {
+class HistorialPadreAdapter(
+    private var lista: MutableList<PadreConNinos>
+) : RecyclerView.Adapter<HistorialPadreAdapter.PadreViewHolder>() {
 
     class PadreViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvNombre: TextView = view.findViewById(R.id.tvNombrePadre)
@@ -32,27 +31,22 @@ class PagosPadreAdapter(
 
     override fun onBindViewHolder(holder: PadreViewHolder, position: Int) {
         val padreConNinos = lista[position]
-
         holder.tvNombre.text = padreConNinos.padre.nombre
 
-        // ✅ Sumar deuda total de todos los niños del padre
-        val deudaTotal = padreConNinos.ninos.sumOf { ncp ->
-            ncp.pagos.filter { it.estado != 1 }.sumOf { it.deuda - it.pago }
+        val totalPagado = padreConNinos.ninos.sumOf { ncp ->
+            ncp.pagos.filter { it.estado == 1 }.sumOf { it.pago }
         }
-        holder.tvDeuda.text = "$${"%.2f".format(deudaTotal)}"
+        holder.tvDeuda.text = "$${"%.2f".format(totalPagado)}"
 
-        // ✅ Adapter de niños
         if (holder.recyclerHijos.layoutManager == null) {
             holder.recyclerHijos.layoutManager = LinearLayoutManager(holder.itemView.context)
             holder.recyclerHijos.isNestedScrollingEnabled = false
         }
 
-        holder.recyclerHijos.adapter = PagosNinoAdapter(
-            padreConNinos.ninos.toMutableList(),
-            onRefresh
+        holder.recyclerHijos.adapter = HistorialNinoAdapter(
+            padreConNinos.ninos.toMutableList()
         )
 
-        // ✅ Expandir / colapsar
         holder.layoutHeader.setOnClickListener {
             val estaVisible = holder.recyclerHijos.visibility == View.VISIBLE
             holder.recyclerHijos.visibility = if (estaVisible) View.GONE else View.VISIBLE

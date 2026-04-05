@@ -67,7 +67,8 @@ class EntradasFragment : Fragment() {
     }
 
     private fun cargarNinosDisponibles() {
-        val sucursalId = 1
+        val prefs = requireContext().getSharedPreferences("pasitos_prefs", android.content.Context.MODE_PRIVATE)
+        val sucursalId = prefs.getInt("sucursal_id", 1)
         RetrofitClient.instance.obtenerNinosDisponibles(sucursalId)
             .enqueue(object : Callback<List<Nino>> {
                 override fun onResponse(call: Call<List<Nino>>, response: Response<List<Nino>>) {

@@ -131,4 +131,13 @@ interface ApiService {
     @DELETE("agenda/{cita_id}")
     fun eliminarCita(@Path("cita_id") citaId: Int): Call<Void>
 
+    @GET("pagos/")
+    fun obtenerPagos(): Call<List<PagoResponse>>
+
+    @GET("maestros/login")
+    fun loginMaestro(
+        @Query("username") username: String,
+        @Query("password") password: String
+    ): Call<Maestro>
+
 }

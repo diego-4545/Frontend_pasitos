@@ -11,10 +11,11 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.pasitos.R
-import com.example.pasitos.adapters.PagosPadreAdapter
+import com.example.pasitos.adapters.HistorialPadreAdapter
 import com.example.pasitos.network.RetrofitClient
 import com.example.pasitos.schemas.Nino
 import com.example.pasitos.schemas.Padre
@@ -23,79 +24,51 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class PagosFragment : Fragment() {
+class HistorialFragment : Fragment() {
 
-    private lateinit var adapter: PagosPadreAdapter
+    private lateinit var adapter: HistorialPadreAdapter
     private lateinit var recycler: RecyclerView
-    private lateinit var txtSinNinos: TextView
+    private lateinit var txtSinHistorial: TextView
 
     private var listaPadres = listOf<Padre>()
     private var listaNinos = listOf<Nino>()
     private var listaPagos = listOf<PagoResponse>()
 
-    data class PadreConNinos(
-        val padre: Padre,
-        val ninos: List<NinoConPago>
-    )
-    data class NinoConPago(
-        val nino: Nino,
-        val pagos: List<PagoResponse>
-    )
+    data class PadreConNinos(val padre: Padre, val ninos: List<NinoConPago>)
+    data class NinoConPago(val nino: Nino, val pagos: List<PagoResponse>)
 
     private var listaAgrupada = mutableListOf<PadreConNinos>()
-    private var listaAgrupadaFiltrada = mutableListOf<PadreConNinos>()
-
-    // ✅ Defaults: todos sin completar, sin orden
-    private var filtroEstado = 2
+    private var listaFiltrada = mutableListOf<PadreConNinos>()
     private var filtroOrden = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_pagos, container, false)
+        val view = inflater.inflate(R.layout.fragment_historial, container, false)
 
-        recycler = view.findViewById(R.id.recyclerPagos)
-        txtSinNinos = view.findViewById(R.id.txtSinNinos)
+        recycler = view.findViewById(R.id.recyclerHistorial)
+        txtSinHistorial = view.findViewById(R.id.txtSinHistorial)
         recycler.layoutManager = LinearLayoutManager(requireContext())
         recycler.isNestedScrollingEnabled = false
-
-        val divider = androidx.recyclerview.widget.DividerItemDecoration(
-            requireContext(), LinearLayoutManager.VERTICAL
-        )
-        recycler.addItemDecoration(divider)
-
-        // ✅ Spinner estado - default "Todos sin completar" (index 2)
-        val spFiltros = view.findViewById<Spinner>(R.id.sp_filtros)
-        val opcionesEstado = listOf("Sin pagar", "Pago parcial", "Todos sin completar")
-        val adapterEstado = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, opcionesEstado)
-        adapterEstado.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spFiltros.adapter = adapterEstado
-        spFiltros.setSelection(2) // ✅ Default: todos sin completar
-        spFiltros.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, v: View?, position: Int, id: Long) {
-                filtroEstado = position
-                aplicarFiltros(view.findViewById<SearchView>(R.id.searchPadrePagos).query?.toString())
-            }
-            override fun onNothingSelected(parent: AdapterView<*>) {}
-        }
+        recycler.addItemDecoration(DividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL))
 
         // ✅ Spinner orden
-        val spOrden = view.findViewById<Spinner>(R.id.sp_orden)
-        val opcionesOrden = listOf("Sin ordenar", "Mayor deuda", "Menor deuda", "Más antiguo", "Más reciente")
-        val adapterOrden = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, opcionesOrden)
-        adapterOrden.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spOrden.adapter = adapterOrden
+        val spOrden = view.findViewById<Spinner>(R.id.sp_orden_historial)
+        val opciones = listOf("Sin ordenar", "Mayor pago", "Menor pago", "Más antiguo", "Más reciente")
+        val adapterSpinner = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, opciones)
+        adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spOrden.adapter = adapterSpinner
         spOrden.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, v: View?, position: Int, id: Long) {
                 filtroOrden = position
-                aplicarFiltros(view.findViewById<SearchView>(R.id.searchPadrePagos).query?.toString())
+                aplicarFiltros(view.findViewById<SearchView>(R.id.searchHistorial).query?.toString())
             }
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
         // ✅ SearchView
-        view.findViewById<SearchView>(R.id.searchPadrePagos)
+        view.findViewById<SearchView>(R.id.searchHistorial)
             .setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String?) = false
                 override fun onQueryTextChange(newText: String?): Boolean {
@@ -135,7 +108,7 @@ class PagosFragment : Fragment() {
                 construirListaAgrupada()
             }
             override fun onFailure(call: Call<List<PagoResponse>>, t: Throwable) {
-                Toast.makeText(requireContext(), "Error al cargar pagos", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Error al cargar historial", Toast.LENGTH_SHORT).show()
                 construirListaAgrupada()
             }
         })
@@ -146,10 +119,10 @@ class PagosFragment : Fragment() {
         for (padre in listaPadres) {
             val ninosDelPadre = listaNinos.filter { it.padre_id == padre.id }
             val ninosConPago = ninosDelPadre.map { nino ->
-                NinoConPago(nino, listaPagos.filter { it.nino_id == nino.id })
-            }
-            val tieneDeudas = ninosConPago.any { ncp -> ncp.pagos.any { it.estado != 1 } }
-            if (tieneDeudas) {
+                NinoConPago(nino, listaPagos.filter { it.nino_id == nino.id && it.estado == 1 })
+            }.filter { it.pagos.isNotEmpty() }
+
+            if (ninosConPago.isNotEmpty()) {
                 listaAgrupada.add(PadreConNinos(padre, ninosConPago))
             }
         }
@@ -159,32 +132,18 @@ class PagosFragment : Fragment() {
     private fun aplicarFiltros(texto: String? = null) {
         var resultado = listaAgrupada.toMutableList()
 
-        // ✅ Filtro por texto
         if (!texto.isNullOrBlank()) {
             resultado = resultado.filter {
                 it.padre.nombre.contains(texto, ignoreCase = true)
             }.toMutableList()
         }
 
-        // ✅ Filtro por estado
-        resultado = resultado.map { padreConNinos ->
-            val ninosFiltrados = padreConNinos.ninos.filter { ncp ->
-                when (filtroEstado) {
-                    0 -> ncp.pagos.any { it.estado == 0 }
-                    1 -> ncp.pagos.any { it.estado == 2 }
-                    else -> ncp.pagos.any { it.estado != 1 }
-                }
-            }
-            PadreConNinos(padreConNinos.padre, ninosFiltrados)
-        }.filter { it.ninos.isNotEmpty() }.toMutableList()
-
-        // ✅ Ordenamiento por deuda o fecha del pago más reciente
         resultado = when (filtroOrden) {
             1 -> resultado.sortedByDescending { pcn ->
-                pcn.ninos.sumOf { ncp -> ncp.pagos.filter { it.estado != 1 }.sumOf { it.deuda - it.pago } }
+                pcn.ninos.sumOf { ncp -> ncp.pagos.sumOf { it.pago } }
             }.toMutableList()
             2 -> resultado.sortedBy { pcn ->
-                pcn.ninos.sumOf { ncp -> ncp.pagos.filter { it.estado != 1 }.sumOf { it.deuda - it.pago } }
+                pcn.ninos.sumOf { ncp -> ncp.pagos.sumOf { it.pago } }
             }.toMutableList()
             3 -> resultado.sortedBy { pcn ->
                 pcn.ninos.flatMap { it.pagos }.minOfOrNull { it.anio * 100 + it.mes } ?: 0
@@ -195,24 +154,24 @@ class PagosFragment : Fragment() {
             else -> resultado
         }
 
-        listaAgrupadaFiltrada.clear()
-        listaAgrupadaFiltrada.addAll(resultado)
+        listaFiltrada.clear()
+        listaFiltrada.addAll(resultado)
         actualizarAdapter()
     }
 
     private fun actualizarAdapter() {
         if (!::adapter.isInitialized) {
-            adapter = PagosPadreAdapter(listaAgrupadaFiltrada) { cargarDatos() }
+            adapter = HistorialPadreAdapter(listaFiltrada)
             recycler.adapter = adapter
         } else {
-            adapter.actualizarLista(listaAgrupadaFiltrada)
+            adapter.actualizarLista(listaFiltrada)
         }
 
-        if (listaAgrupadaFiltrada.isEmpty()) {
-            txtSinNinos.visibility = View.VISIBLE
+        if (listaFiltrada.isEmpty()) {
+            txtSinHistorial.visibility = View.VISIBLE
             recycler.visibility = View.GONE
         } else {
-            txtSinNinos.visibility = View.GONE
+            txtSinHistorial.visibility = View.GONE
             recycler.visibility = View.VISIBLE
         }
     }
