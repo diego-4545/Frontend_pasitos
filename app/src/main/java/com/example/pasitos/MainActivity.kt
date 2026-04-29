@@ -39,8 +39,8 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
-        val etUsuario = findViewById<EditText>(R.id.User)
-        val etPassword = findViewById<EditText>(R.id.Password)
+        val etUsuario = findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.User)
+        val etPassword = findViewById<com.google.android.material.textfield.TextInputEditText>(R.id.Password)
         val btnLogin = findViewById<Button>(R.id.btnLogin)
 
         btnLogin.setOnClickListener {
@@ -52,7 +52,6 @@ class MainActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // ✅ Admin hardcodeado
             if (usuario == "admin" && password == "admin") {
                 val prefs = getSharedPreferences("pasitos_prefs", MODE_PRIVATE)
                 prefs.edit().putInt("sucursal_id", 1).apply()
@@ -60,14 +59,12 @@ class MainActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // ✅ Buscar en BD como maestro
             RetrofitClient.instance.loginMaestro(usuario, password)
                 .enqueue(object : Callback<Maestro> {
                     override fun onResponse(call: Call<Maestro>, response: Response<Maestro>) {
                         if (response.isSuccessful && response.body() != null) {
                             val maestro = response.body()!!
 
-                            // ✅ Guardar sucursal
                             val prefs = getSharedPreferences("pasitos_prefs", MODE_PRIVATE)
                             prefs.edit().putInt("sucursal_id", maestro.sucursal).apply()
 
